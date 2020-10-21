@@ -10,6 +10,7 @@ TABLE_NAME = 'birthday'
 
 
 def connect():
+    """Establishes the connection to the database."""
     try:
         return psycopg2.connect(
             user=USERNAME,
@@ -24,12 +25,15 @@ def connect():
 
 
 def disconnect(connection):
+    """Closes the connection to the database."""
     if connection:
         connection.cursor().close()
         connection.close()
 
 
 def startup(name, user, password, host, port):
+    """Saves the login credentials and creates the database table if not already existing.
+    Returns True if database was set up successfully, False otherwise."""
     global DATABASE, USERNAME, PASSWORD, HOST, PORT
     DATABASE = name
     USERNAME = user
@@ -49,6 +53,8 @@ def startup(name, user, password, host, port):
 
 
 def insert(person):
+    """Saves a person to the database. Returns True when successfully saved, False otherwise.
+    """
     connection = connect()
     if connection is not None:
         query = f'INSERT INTO {TABLE_NAME} VALUES (%s, %s);'
@@ -62,6 +68,7 @@ def insert(person):
 
 
 def list_all():
+    """Returns all database entries."""
     connection = connect()
     if connection is not None:
         query = f'SELECT * FROM {TABLE_NAME};'

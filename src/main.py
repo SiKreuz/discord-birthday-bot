@@ -12,7 +12,9 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
 class Person:
+    """Represents a member on the discord with its id and birthday."""
     def __init__(self, person_id, birthday):
+        """Initializes a person with an id and its birthday."""
         self.person_id = person_id
         self.birthday = birthday
 
@@ -26,6 +28,7 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
+    """Confirms the connection to discord."""
     for guild in client.guilds:
         if guild.name == GUILD:
             break
@@ -36,6 +39,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    """Analyzes the incoming messages."""
     # Checks for the prefix and ignores all messages from itself #
     if not message.content.lower().startswith(PREFIX) or message.author == client.user:
         return
@@ -74,13 +78,14 @@ async def on_message(message):
 @click.option('--host', '-a', default=config.get_db_host(), help='URL of the database')
 @click.option('--port', '-p', default=config.get_db_port(), help='Port of the database')
 def start(token, guild, name, user, password, host, port):
+    """Sets up the database and logs into discord."""
     global GUILD
     GUILD = guild
     if database_util.startup(name, user, password, host, port):
         try:
             client.run(token)
         except discord.errors.LoginFailure:
-            e_print('Please check your login credentials in', config.CONFIG_FILE_PATH)
+            e_print('Please check your login credentials at', config.CONFIG_FILE_PATH)
             exit(1)
 
 
