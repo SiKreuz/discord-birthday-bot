@@ -7,6 +7,8 @@ HOST = None
 PORT = None
 
 TABLE_NAME = 'birthday'
+COLUMN_ID = 'id'
+COLUMN_BIRTHDAY = 'birthday'
 
 
 def connect():
@@ -27,7 +29,6 @@ def connect():
 def disconnect(connection):
     """Closes the connection to the database."""
     if connection:
-        connection.cursor().close()
         connection.close()
 
 
@@ -43,7 +44,9 @@ def startup(name, user, password, host, port):
 
     connection = connect()
     if connection is not None:
-        query = f'CREATE TABLE IF NOT EXISTS {TABLE_NAME}(id BIGINT PRIMARY KEY NOT NULL, birthday DATE);'
+        query = f'CREATE TABLE IF NOT EXISTS {TABLE_NAME}(' \
+                f'{COLUMN_ID} BIGINT PRIMARY KEY NOT NULL, {COLUMN_BIRTHDAY} DATE' \
+                f');'
         connection.cursor().execute(query)
         connection.commit()
         disconnect(connection)
@@ -56,7 +59,8 @@ def insert(person):
     """Saves a person to the database. Returns True when successfully saved, False otherwise."""
     connection = connect()
     if connection is not None:
-        query = f'INSERT INTO {TABLE_NAME} VALUES (%s, %s);'
+        query = f'INSERT INTO {TABLE_NAME} ' \
+                f'VALUES (%s, %s);'
         connection.cursor().execute(query, (person.person_id, person.birthday))
         connection.commit()
         disconnect(connection)
@@ -64,6 +68,23 @@ def insert(person):
         return True
     else:
         return False
+
+
+def get_birthday_children():
+    """Getting all birthday children from the database and calculates their age."""
+    connection = connect()
+    if connection is not None:
+        query = f'SELECT {COLUMN_ID}, DATE_PART(\'year\', AGE({COLUMN_BIRTHDAY})) ' \
+                f'FROM {TABLE_NAME} ' \
+                f'WHERE DATE_PART(\'month\', {COLUMN_BIRTHDAY}) = DATE_PART(\'month\', CURRENT_DATE) ' \
+                f'AND DATE_PART(\'day\', {COLUMN_BIRTHDAY}) = DATE_PART(\'day\', CURRENT_DATE);'
+        cursor = connection.cursor()
+        cursor.execute(query)
+        birthday_children = cursor.fetchall()
+        disconnect(connection)
+        return birthday_children
+    else:
+        return None
 
 
 def list_all():
