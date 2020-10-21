@@ -1,11 +1,9 @@
-import locale
-
 import click
-import dateparser
 import discord
 
 import config_util as config
 import database_util
+import date_util
 from output_util import e_print
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -13,6 +11,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 class Person:
     """Represents a member on the discord with its id and birthday."""
+
     def __init__(self, person_id, birthday):
         """Initializes a person with an id and its birthday."""
         self.person_id = person_id
@@ -20,7 +19,6 @@ class Person:
 
 
 PREFIX = '!bdg'
-
 GUILD = None
 
 client = discord.Client()
@@ -40,33 +38,51 @@ async def on_ready():
 @client.event
 async def on_message(message):
     """Analyzes the incoming messages."""
+
     # Checks for the prefix and ignores all messages from itself #
     if not message.content.lower().startswith(PREFIX) or message.author == client.user:
         return
 
-    if message.content[len(PREFIX):].startswith(' list'):
-        msg = 'These are all birthdays I know:\n'
-        for p in database_util.list_all():
-            msg += f'<@{p[0]}>: {p[1]}'
+    msg = message.content[len(PREFIX) + 1:]  # msg without the prefix
 
-        await message.channel.send(msg)
+    # Command list #
+    if msg.startswith('list'):
+        send_list(message.channel)
         return
 
-    # Check for date #
-    locale.setlocale(locale.LC_ALL, 'en_US.utf8')  # set locale
-    date = dateparser.parse(message.content[len(PREFIX):])  # parse date
+    # Evaluate date given from the user #
+    save_date(msg, message.channel, message.author)
+
+
+def send_message(message, channel):
+    """Sends a message into the given channel."""
+    channel.send(message)
+
+
+def send_list(channel):
+    """Send the whole list of people and their birthdays into the given discord channel."""
+    ret_msg = 'These are all birthdays I know:\n'
+    for p in database_util.list_all():
+        ret_msg += f'<@{p[0]}> - {p[1]}'
+    send_message(ret_msg, channel)
+
+
+def save_date(msg, channel, author):
+    """Parses the date of the message and saves it to the database."""
+    # Date handling #
+    date = date_util.parse_date(msg)
     if date is None:
-        await message.channel.send(f'Sry, but \'{message.content[len(PREFIX):]}\' isn\'t a date.')
+        send_message(f'Sry, but \'{msg}\' isn\'t a date.', channel)
         return
 
     # Insert into database #
-    person = Person(message.author.id, date)
+    person = Person(author.id, date)
     database_util.insert(person)
 
     # Send return message #
-    await message.channel.send(f'Save the date! <@{person.person_id}>\'s birthday is at the '
-                               + person.birthday.strftime('%x')
-                               + '.')
+    send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
+                 + person.birthday.strftime('%x')
+                 + '.', channel)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)

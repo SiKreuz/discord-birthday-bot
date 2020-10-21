@@ -53,8 +53,7 @@ def startup(name, user, password, host, port):
 
 
 def insert(person):
-    """Saves a person to the database. Returns True when successfully saved, False otherwise.
-    """
+    """Saves a person to the database. Returns True when successfully saved, False otherwise."""
     connection = connect()
     if connection is not None:
         query = f'INSERT INTO {TABLE_NAME} VALUES (%s, %s);'
