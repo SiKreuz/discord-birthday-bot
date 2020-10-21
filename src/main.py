@@ -1,11 +1,14 @@
 import locale
-import os
 
+import click
 import dateparser
 import discord
-from dotenv import load_dotenv
 
+import config_util as config
 import database_util
+from output_util import e_print
+
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
 class Person:
@@ -16,9 +19,7 @@ class Person:
 
 PREFIX = '!bdg'
 
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('DISCORD_GUILD')
+GUILD = None
 
 client = discord.Client()
 
@@ -64,9 +65,23 @@ async def on_message(message):
                                + '.')
 
 
-def start():
-    if database_util.startup():
-        client.run(TOKEN)
+@click.command(context_settings=CONTEXT_SETTINGS)
+@click.option('--token', '-t', default=config.get_token(), help='Token of the bot account')
+@click.option('--guild', '-g', default=config.get_guild(), help='Guild of the bot')
+@click.option('--name', '-n', default=config.get_db_name(), help='Database name')
+@click.option('--user', '-u', default=config.get_db_user(), help='Username to enter database')
+@click.option('--password', '-s', default=config.get_db_password(), help='Password to enter database')
+@click.option('--host', '-a', default=config.get_db_host(), help='URL of the database')
+@click.option('--port', '-p', default=config.get_db_port(), help='Port of the database')
+def start(token, guild, name, user, password, host, port):
+    global GUILD
+    GUILD = guild
+    if database_util.startup(name, user, password, host, port):
+        try:
+            client.run(token)
+        except discord.errors.LoginFailure:
+            e_print('Please check your login credentials in', config.CONFIG_FILE_PATH)
+            exit(1)
 
 
 if __name__ == '__main__':

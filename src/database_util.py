@@ -1,14 +1,10 @@
-import os
-
 import psycopg2
-from dotenv import load_dotenv
 
-load_dotenv()
-USERNAME = os.getenv('POSTGRESQL_USER')
-PASSWORD = os.getenv('POSTGRESQL_PASSWORD')
-DATABASE = os.getenv('POSTGRESQL_DATABASE')
-HOST = os.getenv('POSTGRESQL_HOST')
-PORT = os.getenv('POSTGRESQL_PORT')
+DATABASE = None
+USERNAME = None
+PASSWORD = None
+HOST = None
+PORT = None
 
 TABLE_NAME = 'birthday'
 
@@ -33,7 +29,14 @@ def disconnect(connection):
         connection.close()
 
 
-def startup():
+def startup(name, user, password, host, port):
+    global DATABASE, USERNAME, PASSWORD, HOST, PORT
+    DATABASE = name
+    USERNAME = user
+    PASSWORD = password
+    HOST = host
+    PORT = port
+
     connection = connect()
     if connection is not None:
         query = f'CREATE TABLE IF NOT EXISTS {TABLE_NAME}(id BIGINT PRIMARY KEY NOT NULL, birthday DATE);'
