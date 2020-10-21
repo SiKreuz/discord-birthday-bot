@@ -1,0 +1,4 @@
+discord~=1.0.1
+python-dotenv~=0.14.0
+setuptools~=50.3.2
+dateparser~=0.7.6
