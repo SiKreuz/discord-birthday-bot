@@ -106,11 +106,9 @@ async def save_channel(guild, channel):
 def send_birthday_message():
     """Checks for the birthday children and sends a message."""
     birthday_children = database_util.get_birthday_children()
-    msg = 'Today we have ' + str(len(birthday_children)) + ' birthday child(ren).\n'
     for child in birthday_children:
-        msg += f'{child[0]} is now {child[1]} years old!\n'
-    print(msg)
-    # TODO the message has to be send to the discord chat
+        channel = client.get_channel(child[2])
+        client.loop.create_task(send_message(f'<@{child[0]}> is now {int(child[1])} years old!', channel))
 
 
 def start_scheduler():

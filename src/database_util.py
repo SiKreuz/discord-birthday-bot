@@ -83,10 +83,12 @@ def get_birthday_children():
     """Getting all birthday children from the database and calculates their age."""
     connection = connect()
     if connection is not None:
-        query = f'SELECT {COLUMN_PERSON_ID}, DATE_PART(\'year\', AGE({COLUMN_BIRTHDAY})) ' \
-                f'FROM {TABLE_NAME_DATA} ' \
+        query = f'SELECT d.{COLUMN_PERSON_ID}, DATE_PART(\'year\', AGE({COLUMN_BIRTHDAY})), c.{COLUMN_CHANNEL_ID} ' \
+                f'FROM {TABLE_NAME_DATA} AS d, {TABLE_NAME_SETTINGS} AS c ' \
                 f'WHERE DATE_PART(\'month\', {COLUMN_BIRTHDAY}) = DATE_PART(\'month\', CURRENT_DATE) ' \
-                f'AND DATE_PART(\'day\', {COLUMN_BIRTHDAY}) = DATE_PART(\'day\', CURRENT_DATE);'
+                f'AND DATE_PART(\'day\', {COLUMN_BIRTHDAY}) = DATE_PART(\'day\', CURRENT_DATE) ' \
+                f'AND d.{COLUMN_GUILD_ID} = c.{COLUMN_GUILD_ID} ' \
+                f'ORDER BY c.{COLUMN_CHANNEL_ID};'
         cursor = connection.cursor()
         cursor.execute(query)
         birthday_children = cursor.fetchall()
@@ -97,7 +99,7 @@ def get_birthday_children():
 
 
 def list_all(guild_id):
-    """Returns all database entries."""
+    """Returns all birthday entries."""
     connection = connect()
     if connection is not None:
         query = f'SELECT {COLUMN_PERSON_ID}, {COLUMN_BIRTHDAY} ' \
