@@ -63,14 +63,14 @@ async def send_list(channel):
     """Send the whole list of people and their birthdays into the given discord channel."""
     ret_msg = 'These are all birthdays I know:\n'
     for p in database_util.list_all():
-        ret_msg += f'<@{p[0]}> - {p[1]}'
+        ret_msg += f'<@{p[0]}> - {date_util.parse_to_string(p[1])}'
     await send_message(ret_msg, channel)
 
 
 async def save_date(msg, channel, author):
     """Parses the date of the message and saves it to the database."""
     # Date handling #
-    date = date_util.parse_date(msg)
+    date = date_util.parse_to_date(msg)
     if date is None:
         await send_message(f'Sry, but \'{msg}\' isn\'t a date.', channel)
         return
@@ -81,7 +81,7 @@ async def save_date(msg, channel, author):
 
     # Send return message #
     await send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
-                       + person.birthday.strftime('%x')
+                       + date_util.parse_to_string(person.birthday)
                        + '.', channel)
 
 
