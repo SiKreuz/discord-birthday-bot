@@ -12,14 +12,16 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 class Person:
     """Represents a member on the discord with its id and birthday."""
 
-    def __init__(self, person_id, birthday):
+    def __init__(self, person_id, birthday, guild_id):
         """Initializes a person with an id and its birthday."""
         self.person_id = person_id
         self.birthday = birthday
+        self.guild_id = guild_id
 
 
 PREFIX = '!bdg'
 GUILD = None
+CHANNEL = None
 
 client = discord.Client()
 
@@ -43,15 +45,24 @@ async def on_message(message):
     if not message.content.lower().startswith(PREFIX) or message.author == client.user:
         return
 
-    msg = message.content[len(PREFIX) + 1:]  # msg without the prefix
+    print('New message:', message.content)
+
+    msg_words = message.content[len(PREFIX) + 1:].split()  # msg without the prefix
 
     # Command list #
-    if msg.startswith('list'):
-        await send_list(message.channel)
+    if msg_words[0] == 'list':
+        await send_list(message.channel, message.guild)
         return
 
     # Evaluate date given from the user #
-    await save_date(msg, message.channel, message.author)
+    if msg_words[0] == 'set':
+        await save_date(msg_words[1], message.channel, message.author, message.guild)
+        return
+
+    # Set channel to post at #
+    if msg_words[0] == 'set-channel':
+        await save_channel(message.guild, message.channel)
+        return
 
 
 async def send_message(message, channel):
@@ -59,15 +70,15 @@ async def send_message(message, channel):
     await channel.send(message)
 
 
-async def send_list(channel):
+async def send_list(channel, guild):
     """Send the whole list of people and their birthdays into the given discord channel."""
     ret_msg = 'These are all birthdays I know:\n'
-    for p in database_util.list_all():
+    for p in database_util.list_all(guild.id):
         ret_msg += f'<@{p[0]}> - {date_util.parse_to_string(p[1])}'
     await send_message(ret_msg, channel)
 
 
-async def save_date(msg, channel, author):
+async def save_date(msg, channel, author, guild):
     """Parses the date of the message and saves it to the database."""
     # Date handling #
     date = date_util.parse_to_date(msg)
@@ -76,13 +87,19 @@ async def save_date(msg, channel, author):
         return
 
     # Insert into database #
-    person = Person(author.id, date)
+    person = Person(author.id, date, guild.id)
     database_util.insert(person)
 
     # Send return message #
     await send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
                        + date_util.parse_to_string(person.birthday)
                        + '.', channel)
+
+
+async def save_channel(guild, channel):
+    """Saves the desired channel for this guild into the database."""
+    if database_util.set_channel(guild.id, channel.id):
+        await send_message(f'Alright. All birthday greetings will be posted in this channel now.', channel)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
