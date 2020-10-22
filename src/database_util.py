@@ -48,9 +48,10 @@ def startup(name, user, password, host, port):
     connection = connect()
     if connection is not None:
         query = f'CREATE TABLE IF NOT EXISTS {TABLE_NAME_DATA}' \
-                f'({COLUMN_PERSON_ID} BIGINT PRIMARY KEY NOT NULL,' \
-                f'{COLUMN_BIRTHDAY} DATE,' \
-                f'{COLUMN_GUILD_ID} BIGINT); ' \
+                f'({COLUMN_PERSON_ID} BIGINT NOT NULL, ' \
+                f'{COLUMN_BIRTHDAY} DATE, ' \
+                f'{COLUMN_GUILD_ID} BIGINT, ' \
+                f'PRIMARY KEY ({COLUMN_PERSON_ID}, {COLUMN_GUILD_ID})); ' \
                 f'CREATE TABLE IF NOT EXISTS {TABLE_NAME_SETTINGS}' \
                 f'({COLUMN_GUILD_ID} BIGINT PRIMARY KEY NOT NULL, {COLUMN_CHANNEL_ID} BIGINT);'
         connection.cursor().execute(query)
@@ -66,7 +67,7 @@ def insert(person):
     connection = connect()
     if connection is not None:
         query = f'INSERT INTO {TABLE_NAME_DATA} VALUES (%s, %s, %s) ' \
-                f'ON CONFLICT ({COLUMN_PERSON_ID}) DO UPDATE ' \
+                f'ON CONFLICT ({COLUMN_PERSON_ID}, {COLUMN_GUILD_ID}) DO UPDATE ' \
                 f'SET {COLUMN_BIRTHDAY} = %s;'
         connection.cursor().execute(query, (person.person_id, person.birthday, person.guild_id, person.birthday))
         connection.commit()

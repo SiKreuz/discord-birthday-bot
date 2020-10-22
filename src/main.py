@@ -22,7 +22,6 @@ class Person:
 
 PREFIX = '!bdg'
 GUILD = None
-CHANNEL = None
 
 client = discord.Client()
 
