@@ -1,5 +1,6 @@
 import click
 import discord
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import config_util as config
 import database_util
@@ -98,6 +99,21 @@ def save_channel(guild, channel):
             send_message(f'Alright. All birthday greetings will be posted in this channel now.', channel))
 
 
+def send_birthday_message():
+    """Checks for the birthday children and sends a message."""
+    birthday_children = database_util.get_birthday_children()
+    for child in birthday_children:
+        channel = client.get_channel(child[2])
+        client.loop.create_task(send_message(f'<@{child[0]}> is now {int(child[1])} years old!', channel))
+
+
+def start_scheduler():
+    """Configures and starts the scheduler."""
+    scheduler = BackgroundScheduler(daemon=True)
+    scheduler.add_job(send_birthday_message, 'cron', day='*')
+    scheduler.start()
+
+
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--token', '-t', default=config.get_token(), help='Token of the bot account')
 @click.option('--guild', '-g', default=config.get_guild(), help='Guild of the bot')
@@ -107,7 +123,10 @@ def save_channel(guild, channel):
 @click.option('--host', '-a', default=config.get_db_host(), help='URL of the database')
 @click.option('--port', '-p', default=config.get_db_port(), help='Port of the database')
 def start(token, guild, name, user, password, host, port):
-    """Sets up the database and logs into discord."""
+    """Sets up the database, logs into discord and starts the cron job."""
+
+    start_scheduler()
+
     global GUILD
     GUILD = guild
     if database_util.startup(name, user, password, host, port):
