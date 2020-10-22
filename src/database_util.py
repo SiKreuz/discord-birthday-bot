@@ -6,7 +6,8 @@ PASSWORD = None
 HOST = None
 PORT = None
 
-TABLE_NAME = 'birthday'
+TABLE_NAME_DATA = 'birthday'
+TABLE_NAME_SETTINGS = 'settings'
 
 
 def connect():
@@ -43,7 +44,7 @@ def startup(name, user, password, host, port):
 
     connection = connect()
     if connection is not None:
-        query = f'CREATE TABLE IF NOT EXISTS {TABLE_NAME}(id BIGINT PRIMARY KEY NOT NULL, birthday DATE);'
+        query = f'CREATE TABLE IF NOT EXISTS {TABLE_NAME_DATA}(id BIGINT PRIMARY KEY NOT NULL, birthday DATE);'
         connection.cursor().execute(query)
         connection.commit()
         disconnect(connection)
@@ -56,7 +57,7 @@ def insert(person):
     """Saves a person to the database. Returns True when successfully saved, False otherwise."""
     connection = connect()
     if connection is not None:
-        query = f'INSERT INTO {TABLE_NAME} VALUES (%s, %s);'
+        query = f'INSERT INTO {TABLE_NAME_DATA} VALUES (%s, %s);'
         connection.cursor().execute(query, (person.person_id, person.birthday))
         connection.commit()
         disconnect(connection)
@@ -70,7 +71,7 @@ def list_all():
     """Returns all database entries."""
     connection = connect()
     if connection is not None:
-        query = f'SELECT * FROM {TABLE_NAME};'
+        query = f'SELECT * FROM {TABLE_NAME_DATA};'
         cursor = connection.cursor()
         cursor.execute(query)
         persons = cursor.fetchall()

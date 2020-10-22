@@ -47,32 +47,32 @@ async def on_message(message):
 
     # Command list #
     if msg.startswith('list'):
-        send_list(message.channel)
+        await send_list(message.channel)
         return
 
     # Evaluate date given from the user #
-    save_date(msg, message.channel, message.author)
+    await save_date(msg, message.channel, message.author)
 
 
-def send_message(message, channel):
+async def send_message(message, channel):
     """Sends a message into the given channel."""
-    channel.send(message)
+    await channel.send(message)
 
 
-def send_list(channel):
+async def send_list(channel):
     """Send the whole list of people and their birthdays into the given discord channel."""
     ret_msg = 'These are all birthdays I know:\n'
     for p in database_util.list_all():
         ret_msg += f'<@{p[0]}> - {p[1]}'
-    send_message(ret_msg, channel)
+    await send_message(ret_msg, channel)
 
 
-def save_date(msg, channel, author):
+async def save_date(msg, channel, author):
     """Parses the date of the message and saves it to the database."""
     # Date handling #
     date = date_util.parse_date(msg)
     if date is None:
-        send_message(f'Sry, but \'{msg}\' isn\'t a date.', channel)
+        await send_message(f'Sry, but \'{msg}\' isn\'t a date.', channel)
         return
 
     # Insert into database #
@@ -80,9 +80,9 @@ def save_date(msg, channel, author):
     database_util.insert(person)
 
     # Send return message #
-    send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
-                 + person.birthday.strftime('%x')
-                 + '.', channel)
+    await send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
+                       + person.birthday.strftime('%x')
+                       + '.', channel)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
