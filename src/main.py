@@ -29,12 +29,7 @@ client = discord.Client()
 @client.event
 async def on_ready():
     """Confirms the connection to discord."""
-    for guild in client.guilds:
-        if guild.name == GUILD:
-            break
-
-    print(f'{client.user} is connected to the following guild:\n'
-          f'{guild.name} (id: {guild.id})')
+    print(f'{client.user} is connected to discord.')
 
 
 @client.event
@@ -45,23 +40,23 @@ async def on_message(message):
     if not message.content.lower().startswith(PREFIX) or message.author == client.user:
         return
 
-    print('New message:', message.content)
+    print('Incoming task:', message.content)
 
     msg_words = message.content[len(PREFIX) + 1:].split()  # msg without the prefix
 
     # Command list #
     if msg_words[0] == 'list':
-        await send_list(message.channel, message.guild)
+        send_list(message.channel, message.guild)
         return
 
     # Evaluate date given from the user #
     if msg_words[0] == 'set':
-        await save_date(msg_words[1], message.channel, message.author, message.guild)
+        save_date(msg_words[1], message.channel, message.author, message.guild)
         return
 
     # Set channel to post at #
     if msg_words[0] == 'set-channel':
-        await save_channel(message.guild, message.channel)
+        save_channel(message.guild, message.channel)
         return
 
 
@@ -70,20 +65,20 @@ async def send_message(message, channel):
     await channel.send(message)
 
 
-async def send_list(channel, guild):
+def send_list(channel, guild):
     """Send the whole list of people and their birthdays into the given discord channel."""
     ret_msg = 'These are all birthdays I know:\n'
     for p in database_util.list_all(guild.id):
         ret_msg += f'<@{p[0]}> - {date_util.parse_to_string(p[1])}'
-    await send_message(ret_msg, channel)
+    client.loop.create_task(send_message(ret_msg, channel))
 
 
-async def save_date(msg, channel, author, guild):
+def save_date(msg, channel, author, guild):
     """Parses the date of the message and saves it to the database."""
     # Date handling #
     date = date_util.parse_to_date(msg)
     if date is None:
-        await send_message(f'Sry, but \'{msg}\' isn\'t a date.', channel)
+        client.loop.create_task(send_message(f'Sry, but {msg} isn\'t a date.', channel))
         return
 
     # Insert into database #
@@ -91,15 +86,16 @@ async def save_date(msg, channel, author, guild):
     database_util.insert(person)
 
     # Send return message #
-    await send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
-                       + date_util.parse_to_string(person.birthday)
-                       + '.', channel)
+    client.loop.create_task(send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
+                                         + date_util.parse_to_string(person.birthday)
+                                         + '.', channel))
 
 
-async def save_channel(guild, channel):
+def save_channel(guild, channel):
     """Saves the desired channel for this guild into the database."""
     if database_util.set_channel(guild.id, channel.id):
-        await send_message(f'Alright. All birthday greetings will be posted in this channel now.', channel)
+        client.loop.create_task(
+            send_message(f'Alright. All birthday greetings will be posted in this channel now.', channel))
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
