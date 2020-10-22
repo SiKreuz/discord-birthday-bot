@@ -6,9 +6,12 @@ PASSWORD = None
 HOST = None
 PORT = None
 
-TABLE_NAME = 'birthday'
-COLUMN_ID = 'id'
+TABLE_NAME_DATA = 'birthday'
+COLUMN_PERSON_ID = 'person_id'
 COLUMN_BIRTHDAY = 'birthday'
+COLUMN_GUILD_ID = 'guild_id'
+TABLE_NAME_SETTINGS = 'greeting_channel'
+COLUMN_CHANNEL_ID = 'channel_id'
 
 
 def connect():
@@ -44,9 +47,12 @@ def startup(name, user, password, host, port):
 
     connection = connect()
     if connection is not None:
-        query = f'CREATE TABLE IF NOT EXISTS {TABLE_NAME}(' \
-                f'{COLUMN_ID} BIGINT PRIMARY KEY NOT NULL, {COLUMN_BIRTHDAY} DATE' \
-                f');'
+        query = f'CREATE TABLE IF NOT EXISTS {TABLE_NAME_DATA}' \
+                f'({COLUMN_PERSON_ID} BIGINT PRIMARY KEY NOT NULL,' \
+                f'{COLUMN_BIRTHDAY} DATE,' \
+                f'{COLUMN_GUILD_ID} BIGINT); ' \
+                f'CREATE TABLE IF NOT EXISTS {TABLE_NAME_SETTINGS}' \
+                f'({COLUMN_GUILD_ID} BIGINT PRIMARY KEY NOT NULL, {COLUMN_CHANNEL_ID} BIGINT);'
         connection.cursor().execute(query)
         connection.commit()
         disconnect(connection)
@@ -59,12 +65,15 @@ def insert(person):
     """Saves a person to the database. Returns True when successfully saved, False otherwise."""
     connection = connect()
     if connection is not None:
-        query = f'INSERT INTO {TABLE_NAME} ' \
-                f'VALUES (%s, %s);'
-        connection.cursor().execute(query, (person.person_id, person.birthday))
+        query = f'INSERT INTO {TABLE_NAME_DATA} VALUES (%s, %s, %s) ' \
+                f'ON CONFLICT ({COLUMN_PERSON_ID}) DO UPDATE ' \
+                f'SET {COLUMN_BIRTHDAY} = %s;'
+        connection.cursor().execute(query, (person.person_id, person.birthday, person.guild_id, person.birthday))
         connection.commit()
         disconnect(connection)
-        print(f'Added member {person.person_id} with birthday ' + person.birthday.strftime('%x') + '.')
+        print(f'Guild {person.guild_id}: '
+              f'Added member {person.person_id} with birthday '
+              + person.birthday.strftime('%x') + '.')
         return True
     else:
         return False
@@ -74,8 +83,8 @@ def get_birthday_children():
     """Getting all birthday children from the database and calculates their age."""
     connection = connect()
     if connection is not None:
-        query = f'SELECT {COLUMN_ID}, DATE_PART(\'year\', AGE({COLUMN_BIRTHDAY})) ' \
-                f'FROM {TABLE_NAME} ' \
+        query = f'SELECT {COLUMN_PERSON_ID}, DATE_PART(\'year\', AGE({COLUMN_BIRTHDAY})) ' \
+                f'FROM {TABLE_NAME_DATA} ' \
                 f'WHERE DATE_PART(\'month\', {COLUMN_BIRTHDAY}) = DATE_PART(\'month\', CURRENT_DATE) ' \
                 f'AND DATE_PART(\'day\', {COLUMN_BIRTHDAY}) = DATE_PART(\'day\', CURRENT_DATE);'
         cursor = connection.cursor()
@@ -87,11 +96,13 @@ def get_birthday_children():
         return None
 
 
-def list_all():
+def list_all(guild_id):
     """Returns all database entries."""
     connection = connect()
     if connection is not None:
-        query = f'SELECT * FROM {TABLE_NAME};'
+        query = f'SELECT {COLUMN_PERSON_ID}, {COLUMN_BIRTHDAY} ' \
+                f'FROM {TABLE_NAME_DATA} ' \
+                f'WHERE {COLUMN_GUILD_ID} = \'{guild_id}\';'
         cursor = connection.cursor()
         cursor.execute(query)
         persons = cursor.fetchall()
@@ -99,3 +110,18 @@ def list_all():
         return persons
     else:
         return None
+
+
+def set_channel(guild_id, channel_id):
+    """Inserts an entry to the greeting_channel table."""
+    connection = connect()
+    if connection is not None:
+        query = f'INSERT INTO {TABLE_NAME_SETTINGS} VALUES (%s, %s) ' \
+                f'ON CONFLICT ({COLUMN_GUILD_ID}) DO UPDATE ' \
+                f'SET {COLUMN_CHANNEL_ID} = {channel_id};'
+        connection.cursor().execute(query, (guild_id, channel_id))
+        connection.commit()
+        disconnect(connection)
+        return True
+    else:
+        return False
