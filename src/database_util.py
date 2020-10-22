@@ -10,7 +10,7 @@ TABLE_NAME_DATA = 'birthday'
 COLUMN_PERSON_ID = 'person_id'
 COLUMN_BIRTHDAY = 'birthday'
 COLUMN_GUILD_ID = 'guild_id'
-TABLE_NAME_SETTINGS = 'settings'
+TABLE_NAME_SETTINGS = 'greeting_channel'
 COLUMN_CHANNEL_ID = 'channel_id'
 
 
@@ -66,8 +66,10 @@ def insert(person):
     """Saves a person to the database. Returns True when successfully saved, False otherwise."""
     connection = connect()
     if connection is not None:
-        query = f'INSERT INTO {TABLE_NAME_DATA} VALUES (%s, %s, %s);'
-        connection.cursor().execute(query, (person.person_id, person.birthday, person.guild_id))
+        query = f'INSERT INTO {TABLE_NAME_DATA} VALUES (%s, %s, %s) ' \
+                f'ON CONFLICT ({COLUMN_PERSON_ID}) DO UPDATE ' \
+                f'SET {COLUMN_BIRTHDAY} = %s;'
+        connection.cursor().execute(query, (person.person_id, person.birthday, person.guild_id, person.birthday))
         connection.commit()
         disconnect(connection)
         print(f'Guild {person.guild_id}: '
@@ -95,9 +97,12 @@ def list_all(guild_id):
 
 
 def set_channel(guild_id, channel_id):
+    """Inserts an entry to the greeting_channel table."""
     connection = connect()
     if connection is not None:
-        query = f'INSERT INTO {TABLE_NAME_SETTINGS} VALUES (%s, %s)'
+        query = f'INSERT INTO {TABLE_NAME_SETTINGS} VALUES (%s, %s) ' \
+                f'ON CONFLICT ({COLUMN_GUILD_ID}) DO UPDATE ' \
+                f'SET {COLUMN_CHANNEL_ID} = {channel_id};'
         connection.cursor().execute(query, (guild_id, channel_id))
         connection.commit()
         disconnect(connection)
