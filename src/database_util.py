@@ -105,7 +105,8 @@ def list_all(guild_id):
     if connection is not None:
         query = f'SELECT {COLUMN_PERSON_ID}, {COLUMN_BIRTHDAY} ' \
                 f'FROM {TABLE_NAME_DATA} ' \
-                f'WHERE {COLUMN_GUILD_ID} = \'{guild_id}\';'
+                f'WHERE {COLUMN_GUILD_ID} = \'{guild_id}\' ' \
+                f'ORDER BY TO_CHAR({COLUMN_BIRTHDAY}, \'MMDD\');'
         cursor = connection.cursor()
         cursor.execute(query)
         persons = cursor.fetchall()

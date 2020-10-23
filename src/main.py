@@ -69,7 +69,7 @@ def send_list(channel, guild):
     """Send the whole list of people and their birthdays into the given discord channel."""
     ret_msg = 'These are all birthdays I know:\n'
     for p in database_util.list_all(guild.id):
-        ret_msg += f'<@{p[0]}> - {date_util.parse_to_string(p[1])}'
+        ret_msg += f'{date_util.parse_to_string(p[1])} - <@{p[0]}>\n'
     client.loop.create_task(send_message(ret_msg, channel))
 
 
