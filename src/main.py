@@ -46,17 +46,28 @@ async def on_message(message):
     # Command list #
     if msg_words[0] == 'list':
         send_list(message.channel, message.guild)
-        return
 
     # Evaluate date given from the user #
-    if msg_words[0] == 'set':
+    elif msg_words[0] == 'set':
         save_date(msg_words[1], message.channel, message.author, message.guild)
-        return
 
     # Set channel to post at #
-    if msg_words[0] == 'set-channel':
+    elif msg_words[0] == 'set-channel':
         save_channel(message.guild, message.channel)
-        return
+
+    # Sends a message with a list of all commends
+    elif msg_words[0] == 'help':
+        text = '```CSS\n' \
+               '[!bdg list]         Shows all Users how set there birthday\n' \
+               '[!bdg set (date)]   Safes users birthday\n' \
+               '[!bdg set-channel]  Sets channel where but will congratulates\n' \
+               '[!bdg help]         Sends this message :)```'
+        await send_message(text, message.channel)
+
+    # When there is no valid command
+    else:
+        text = 'With ***!bdg help*** you can get all available commands'
+        await send_message(text, message.channel)
 
 
 async def send_message(message, channel):
