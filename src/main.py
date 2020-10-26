@@ -21,7 +21,6 @@ class Person:
 
 
 PREFIX = '!bdg'
-GUILD = None
 
 client = discord.Client()
 
@@ -115,19 +114,16 @@ def start_scheduler():
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--token', '-t', default=config.get_token(), help='Token of the bot account')
-@click.option('--guild', '-g', default=config.get_guild(), help='Guild of the bot')
 @click.option('--name', '-n', default=config.get_db_name(), help='Database name')
 @click.option('--user', '-u', default=config.get_db_user(), help='Username to enter database')
 @click.option('--password', '-s', default=config.get_db_password(), help='Password to enter database')
 @click.option('--host', '-a', default=config.get_db_host(), help='URL of the database')
 @click.option('--port', '-p', default=config.get_db_port(), help='Port of the database')
-def start(token, guild, name, user, password, host, port):
+def start(token, name, user, password, host, port):
     """Sets up the database, logs into discord and starts the cron job."""
 
     start_scheduler()
 
-    global GUILD
-    GUILD = guild
     if database_util.startup(name, user, password, host, port):
         try:
             client.run(token)

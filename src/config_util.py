@@ -11,7 +11,6 @@ CONFIG_FILE_PATH = CONFIG_DIR + '/' + CONFIG_FILE_NAME
 
 BOT_SECTION = 'Bot'
 TOKEN = 'token'
-GUILD = 'guild'
 
 DB_SECTION = 'PostgreSQL'
 DB_NAME = 'name'
@@ -32,7 +31,6 @@ config.read(CONFIG_FILE_PATH)
 if not config.has_section(BOT_SECTION):
     config.add_section(BOT_SECTION)
     config.set(BOT_SECTION, TOKEN, '')
-    config.set(BOT_SECTION, GUILD, '')
 if not config.has_section(DB_SECTION):
     config.add_section(DB_SECTION)
     config.set(DB_SECTION, DB_NAME, 'postgres')
@@ -47,10 +45,6 @@ with open(CONFIG_FILE_PATH, 'w+') as config_file:
 
 def get_token():
     return config.get(BOT_SECTION, TOKEN)
-
-
-def get_guild():
-    return config.get(BOT_SECTION, GUILD)
 
 
 def get_db_name():
