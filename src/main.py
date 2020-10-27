@@ -60,6 +60,10 @@ async def on_message(message):
     elif msg_words[0] == 'set':
         save_date(msg_words[1], message.channel, message.author, message.guild)
 
+    # Delete user's birthday #
+    elif msg_words[0] == 'delete':
+        delete_date(message.channel, message.author, message.guild)
+
     # Set channel to post at #
     elif msg_words[0] == 'set-channel' and is_admin(message.author):
         save_channel(message.guild, message.channel)
@@ -67,7 +71,8 @@ async def on_message(message):
     # Sends a message with a list of all commends #
     elif msg_words[0] == 'help':
         text = '```\n' \
-               '!bdg set <date>     Saves the birthday of the user.\n' \
+               '!bdg delete         Deletes the user\'s birthday.\n' \
+               '!bdg set <date>     Saves the user\'s birthday.\n' \
                '!bdg help           Prints this help message.```\n'
         if is_admin(message.author):
             text += 'Additional admin commands:\n' \
@@ -115,6 +120,21 @@ def save_date(msg, channel, author, guild):
     client.loop.create_task(send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
                                          + date_util.parse_to_string(person.birthday)
                                          + '.', channel))
+
+
+def delete_date(channel, author, guild):
+    """Deletes the user's birthday and sends a confirmation message."""
+    person = Person(author.id, None, guild.id)
+    if database_util.delete(person):
+        client.loop.create_task(
+            send_message('<@%s>, I have forgotten your birthday. Do you even have one?' % person.person_id,
+                         channel))
+
+
+def delete_all(channel, guild):
+    """Deletes all birthdays from the current guild."""
+    if database_util.delete_all(guild.id):
+        client.loop.create_task(send_message('I have forgotten all your birthdays. Tell me some!', channel))
 
 
 def save_channel(guild, channel):
