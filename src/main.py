@@ -58,10 +58,10 @@ async def on_message(message):
     # Sends a message with a list of all commends
     elif msg_words[0] == 'help':
         text = '```CSS\n' \
-               '[!bdg list]         Shows all Users how set there birthday\n' \
-               '[!bdg set (date)]   Safes users birthday\n' \
-               '[!bdg set-channel]  Sets channel where but will congratulates\n' \
-               '[!bdg help]         Sends this message :)```'
+               '!bdg list           Prints a list of all saved birthdays.\n' \
+               '!bdg set <date>     Saves the birthday of the user.\n' \
+               '!bdg set-channel    Sets current channel for upcoming congratulations.\n' \
+               '!bdg help           Prints this help message.```'
         await send_message(text, message.channel)
 
     # When there is no valid command
