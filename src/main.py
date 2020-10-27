@@ -64,6 +64,10 @@ async def on_message(message):
     elif msg_words[0] == 'delete':
         delete_date(message.channel, message.author, message.guild)
 
+    # Delete all (only admin) #
+    elif msg_words[0] == 'delete-all' and is_admin(message.author):
+        delete_all(message.channel, message.guild)
+
     # Set channel to post at #
     elif msg_words[0] == 'set-channel' and is_admin(message.author):
         save_channel(message.guild, message.channel)
@@ -77,6 +81,7 @@ async def on_message(message):
         if is_admin(message.author):
             text += 'Additional admin commands:\n' \
                     '```\n' \
+                    '!bdg delete-all     Deletes all saved birthdays. Cannot be undone!\n' \
                     '!bdg list           Prints a list of all saved birthdays.\n' \
                     '!bdg set-channel    Sets current channel for upcoming congratulations.```'
         await send_message(text, message.channel)

@@ -96,6 +96,20 @@ def delete(person):
         return False
 
 
+def delete_all(guild_id):
+    connection = connect()
+    if connection is not None:
+        query = f'DELETE FROM {TABLE_NAME_DATA} ' \
+                f'WHERE {COLUMN_GUILD_ID} = %s;'
+        cursor = connection.cursor()
+        cursor.execute(query, (guild_id,))
+        connection.commit()
+        disconnect(connection)
+        return True
+    else:
+        return False
+
+
 def get_birthday_children():
     """Getting all birthday children from the database and calculates their age."""
     connection = connect()
