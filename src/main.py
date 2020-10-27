@@ -53,7 +53,7 @@ async def on_message(message):
         await invalid_command()
 
     # Command list #
-    elif msg_words[0] == 'list':
+    elif msg_words[0] == 'list' and is_admin(message.author):
         send_list(message.channel, message.guild)
 
     # Evaluate date given from the user #
@@ -61,16 +61,19 @@ async def on_message(message):
         save_date(msg_words[1], message.channel, message.author, message.guild)
 
     # Set channel to post at #
-    elif msg_words[0] == 'set-channel':
+    elif msg_words[0] == 'set-channel' and is_admin(message.author):
         save_channel(message.guild, message.channel)
 
     # Sends a message with a list of all commends #
     elif msg_words[0] == 'help':
         text = '```\n' \
-               '!bdg list           Prints a list of all saved birthdays.\n' \
                '!bdg set <date>     Saves the birthday of the user.\n' \
-               '!bdg set-channel    Sets current channel for upcoming congratulations.\n' \
-               '!bdg help           Prints this help message.```'
+               '!bdg help           Prints this help message.```\n'
+        if is_admin(message.author):
+            text += 'Additional admin commands:\n' \
+                    '```\n' \
+                    '!bdg list           Prints a list of all saved birthdays.\n' \
+                    '!bdg set-channel    Sets current channel for upcoming congratulations.```'
         await send_message(text, message.channel)
 
     # If there is no valid command #
@@ -81,6 +84,11 @@ async def on_message(message):
 async def send_message(message, channel):
     """Sends a message into the given channel."""
     await channel.send(message)
+
+
+def is_admin(user):
+    """Checks if giving user is an admin"""
+    return user.guild_permissions.administrator
 
 
 def send_list(channel, guild):
