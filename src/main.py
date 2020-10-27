@@ -43,20 +43,39 @@ async def on_message(message):
 
     msg_words = message.content[len(PREFIX) + 1:].split()  # msg without the prefix
 
+    # Returns message at invalid command #
+    async def invalid_command():
+        msg = 'Sorry, but this isn\'t a valid command. With `!bdg help` you can get a list of all available commands.'
+        await send_message(msg, message.channel)
+
+    # No command available #
+    if len(msg_words) == 0:
+        await invalid_command()
+
     # Command list #
-    if msg_words[0] == 'list':
+    elif msg_words[0] == 'list':
         send_list(message.channel, message.guild)
-        return
 
     # Evaluate date given from the user #
-    if msg_words[0] == 'set':
+    elif msg_words[0] == 'set':
         save_date(msg_words[1], message.channel, message.author, message.guild)
-        return
 
     # Set channel to post at #
-    if msg_words[0] == 'set-channel':
+    elif msg_words[0] == 'set-channel':
         save_channel(message.guild, message.channel)
-        return
+
+    # Sends a message with a list of all commends #
+    elif msg_words[0] == 'help':
+        text = '```\n' \
+               '!bdg list           Prints a list of all saved birthdays.\n' \
+               '!bdg set <date>     Saves the birthday of the user.\n' \
+               '!bdg set-channel    Sets current channel for upcoming congratulations.\n' \
+               '!bdg help           Prints this help message.```'
+        await send_message(text, message.channel)
+
+    # If there is no valid command #
+    else:
+        await invalid_command()
 
 
 async def send_message(message, channel):
