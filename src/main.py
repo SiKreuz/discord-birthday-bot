@@ -1,6 +1,7 @@
 import click
 import discord
 from apscheduler.schedulers.background import BackgroundScheduler
+from discord.ext import commands
 
 import config_util as config
 import database_util
@@ -8,6 +9,9 @@ import date_util
 from output_util import e_print
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+
+PREFIX = '!bdg '
+bot = commands.Bot(command_prefix=PREFIX)
 
 
 class Person:
@@ -20,75 +24,71 @@ class Person:
         self.guild_id = guild_id
 
 
-PREFIX = '!bdg'
+class Everyone(commands.Cog):
+    @commands.command(name='set')
+    async def save_date(self, ctx, date):
+        """Saves the birthday of the user."""
+        # Date handling #
+        parsed_date = date_util.parse_to_date(date)
+        if parsed_date is None:
+            raise commands.BadArgument(date)
 
-client = discord.Client()
+        # Insert into database #
+        person = Person(ctx.author.id, parsed_date, ctx.guild.id)
+        database_util.insert(person)
+
+        # Send return message #
+        await send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
+                           + date_util.parse_to_string(person.birthday)
+                           + '.', ctx.channel)
+
+    @commands.command(name='delete')
+    async def delete_date(self, ctx):
+        """Deletes the user's birthday."""
+        person = Person(ctx.author.id, None, ctx.guild.id)
+        if database_util.delete(person):
+            await send_message('<@%s>, I have forgotten your birthday. Do you even have one?' % person.person_id,
+                               ctx.channel)
 
 
-@client.event
-async def on_ready():
-    """Confirms the connection to discord."""
-    print(f'{client.user} is connected to discord.')
+class Admin(commands.Cog):
+    @commands.command(name='list')
+    @commands.has_permissions(administrator=True)
+    async def list_birthdays(self, ctx):
+        """Prints a list of all saved birthdays."""
+        ret_msg = 'These are all birthdays I know:\n'
+        for p in database_util.list_all(ctx.guild.id):
+            ret_msg += f'{date_util.parse_to_string(p[1])} - <@{p[0]}>\n'
+        await send_message(ret_msg, ctx.channel)
+
+    @commands.command(name='set-channel')
+    @commands.has_permissions(administrator=True)
+    async def set_channel(self, ctx):
+        """Sets current channel for upcoming congratulations."""
+        database_util.set_channel(ctx.guild.id, ctx.channel.id)
+        ret_msg = 'Alright. All birthday greetings will be posted in this channel now.'
+        await send_message(ret_msg, ctx.channel)
+
+    @commands.command(name='delete-all')
+    @commands.has_permissions(administrator=True)
+    async def delete_all(self, ctx):
+        """Deletes all saved birthdays."""
+        if database_util.delete_all(ctx.guild.id):
+            await send_message('I have forgotten all your birthdays. Tell me some!', ctx.channel)
 
 
-@client.event
-async def on_message(message):
-    """Analyzes the incoming messages."""
-
-    # Checks for the prefix and ignores all messages from itself #
-    if not message.content.lower().startswith(PREFIX) or message.author == client.user:
-        return
-
-    print('Incoming task:', message.content)
-
-    msg_words = message.content[len(PREFIX) + 1:].split()  # msg without the prefix
-
-    # Returns message at invalid command #
-    async def invalid_command():
-        msg = 'Sorry, but this isn\'t a valid command. With `!bdg help` you can get a list of all available commands.'
-        await send_message(msg, message.channel)
-
-    # No command available #
-    if len(msg_words) == 0:
-        await invalid_command()
-
-    # Command list #
-    elif msg_words[0] == 'list' and is_admin(message.author):
-        send_list(message.channel, message.guild)
-
-    # Evaluate date given from the user #
-    elif msg_words[0] == 'set':
-        save_date(msg_words[1], message.channel, message.author, message.guild)
-
-    # Delete user's birthday #
-    elif msg_words[0] == 'delete':
-        delete_date(message.channel, message.author, message.guild)
-
-    # Delete all (only admin) #
-    elif msg_words[0] == 'delete-all' and is_admin(message.author):
-        delete_all(message.channel, message.guild)
-
-    # Set channel to post at #
-    elif msg_words[0] == 'set-channel' and is_admin(message.author):
-        save_channel(message.guild, message.channel)
-
-    # Sends a message with a list of all commends #
-    elif msg_words[0] == 'help':
-        text = '```\n' \
-               '!bdg delete         Deletes the user\'s birthday.\n' \
-               '!bdg set <date>     Saves the user\'s birthday.\n' \
-               '!bdg help           Prints this help message.```\n'
-        if is_admin(message.author):
-            text += 'Additional admin commands:\n' \
-                    '```\n' \
-                    '!bdg delete-all     Deletes all saved birthdays. Cannot be undone!\n' \
-                    '!bdg list           Prints a list of all saved birthdays.\n' \
-                    '!bdg set-channel    Sets current channel for upcoming congratulations.```'
-        await send_message(text, message.channel)
-
-    # If there is no valid command #
+@bot.event
+async def on_command_error(ctx, error):
+    """Handles all errors of incoming commands."""
+    if isinstance(error, commands.CommandNotFound):
+        ret_msg = 'Sorry, but this command does not exist. With `!bdg help` you can list all available commands.'
+    elif isinstance(error, commands.MissingPermissions):
+        ret_msg = 'Sorry, but you don\'t have the necessary permissions to use this command.'
+    elif isinstance(error, commands.BadArgument):
+        ret_msg = 'Sry, but \'%s\' isn\'t a date.' % error.args[0]
     else:
-        await invalid_command()
+        ret_msg = 'Sorry, but something went wrong. Please advise the administrator.'
+    bot.loop.create_task(send_message(ret_msg, ctx.channel))
 
 
 async def send_message(message, channel):
@@ -96,65 +96,12 @@ async def send_message(message, channel):
     await channel.send(message)
 
 
-def is_admin(user):
-    """Checks if giving user is an admin"""
-    return user.guild_permissions.administrator
-
-
-def send_list(channel, guild):
-    """Send the whole list of people and their birthdays into the given discord channel."""
-    ret_msg = 'These are all birthdays I know:\n'
-    for p in database_util.list_all(guild.id):
-        ret_msg += f'{date_util.parse_to_string(p[1])} - <@{p[0]}>\n'
-    client.loop.create_task(send_message(ret_msg, channel))
-
-
-def save_date(msg, channel, author, guild):
-    """Parses the date of the message and saves it to the database."""
-    # Date handling #
-    date = date_util.parse_to_date(msg)
-    if date is None:
-        client.loop.create_task(send_message(f'Sry, but {msg} isn\'t a date.', channel))
-        return
-
-    # Insert into database #
-    person = Person(author.id, date, guild.id)
-    database_util.insert(person)
-
-    # Send return message #
-    client.loop.create_task(send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
-                                         + date_util.parse_to_string(person.birthday)
-                                         + '.', channel))
-
-
-def delete_date(channel, author, guild):
-    """Deletes the user's birthday and sends a confirmation message."""
-    person = Person(author.id, None, guild.id)
-    if database_util.delete(person):
-        client.loop.create_task(
-            send_message('<@%s>, I have forgotten your birthday. Do you even have one?' % person.person_id,
-                         channel))
-
-
-def delete_all(channel, guild):
-    """Deletes all birthdays from the current guild."""
-    if database_util.delete_all(guild.id):
-        client.loop.create_task(send_message('I have forgotten all your birthdays. Tell me some!', channel))
-
-
-def save_channel(guild, channel):
-    """Saves the desired channel for this guild into the database."""
-    if database_util.set_channel(guild.id, channel.id):
-        client.loop.create_task(
-            send_message(f'Alright. All birthday greetings will be posted in this channel now.', channel))
-
-
 def send_birthday_message():
     """Checks for the birthday children and sends a message."""
     birthday_children = database_util.get_birthday_children()
     for child in birthday_children:
-        channel = client.get_channel(child[2])
-        client.loop.create_task(send_message(f'<@{child[0]}> is now {int(child[1])} years old!', channel))
+        channel = bot.get_channel(child[2])
+        bot.loop.create_task(send_message(f'<@{child[0]}> is now {int(child[1])} years old!', channel))
 
 
 def start_scheduler():
@@ -174,11 +121,13 @@ def start_scheduler():
 def start(token, name, user, password, host, port):
     """Sets up the database, logs into discord and starts the cron job."""
 
-    start_scheduler()
+    bot.add_cog(Everyone())
+    bot.add_cog(Admin())
 
     if database_util.startup(name, user, password, host, port):
         try:
-            client.run(token)
+            bot.run(token)
+            start_scheduler()
         except discord.errors.LoginFailure:
             e_print('Please check your login credentials at', config.CONFIG_FILE_PATH)
             exit(1)
