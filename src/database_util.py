@@ -80,6 +80,36 @@ def insert(person):
         return False
 
 
+def delete(person):
+    """Deletes a person and its birthday. Returns True when successfully saved, False otherwise."""
+    connection = connect()
+    if connection is not None:
+        query = f'DELETE FROM {TABLE_NAME_DATA} ' \
+                f'WHERE {COLUMN_PERSON_ID} = %s ' \
+                f'AND {COLUMN_GUILD_ID} = %s;'
+        cursor = connection.cursor()
+        cursor.execute(query, (person.person_id, person.guild_id))
+        connection.commit()
+        disconnect(connection)
+        return True
+    else:
+        return False
+
+
+def delete_all(guild_id):
+    connection = connect()
+    if connection is not None:
+        query = f'DELETE FROM {TABLE_NAME_DATA} ' \
+                f'WHERE {COLUMN_GUILD_ID} = %s;'
+        cursor = connection.cursor()
+        cursor.execute(query, (guild_id,))
+        connection.commit()
+        disconnect(connection)
+        return True
+    else:
+        return False
+
+
 def get_birthday_children():
     """Getting all birthday children from the database and calculates their age."""
     connection = connect()

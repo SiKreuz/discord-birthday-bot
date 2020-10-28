@@ -1,3 +1,5 @@
+from asyncio import TimeoutError
+
 import click
 import discord
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -42,6 +44,14 @@ class Everyone(commands.Cog):
                            + date_util.parse_to_string(person.birthday)
                            + '.', ctx.channel)
 
+    @commands.command(name='delete')
+    async def delete_date(self, ctx):
+        """Deletes the user's birthday."""
+        person = Person(ctx.author.id, None, ctx.guild.id)
+        if database_util.delete(person):
+            await send_message('<@%s>, I have forgotten your birthday. Do you even have one?' % person.person_id,
+                               ctx.channel)
+
 
 class Admin(commands.Cog):
     @commands.command(name='list')
@@ -60,6 +70,24 @@ class Admin(commands.Cog):
         database_util.set_channel(ctx.guild.id, ctx.channel.id)
         ret_msg = 'Alright. All birthday greetings will be posted in this channel now.'
         await send_message(ret_msg, ctx.channel)
+
+    @commands.command(name='delete-all')
+    @commands.has_permissions(administrator=True)
+    async def delete_all(self, ctx):
+        """Deletes all saved birthdays."""
+        # Sends confirmation message and reacts with thumb up #
+        msg = await send_message('Do you really want to delete all birthdays? This cannot be undone!', ctx.channel)
+        await msg.add_reaction('👍')
+
+        # Wait for reaction and delete all birthdays afterwards. #
+        try:
+            if await bot.wait_for('reaction_add',
+                                  timeout=30.0,
+                                  check=lambda reaction, user: user == ctx.author and reaction.emoji == '👍'):
+                database_util.delete_all(ctx.guild.id)
+                await send_message('I have forgotten all your birthdays. Tell me some!', ctx.channel)
+        except TimeoutError:
+            await send_message('You didn\'t react in-time. I\'ll just forget about that.', ctx.channel)
 
 
 @bot.event
@@ -85,7 +113,7 @@ async def on_guild_remove(guild):
 
 async def send_message(message, channel):
     """Sends a message into the given channel."""
-    await channel.send(message)
+    return await channel.send(message)
 
 
 def send_birthday_message():
