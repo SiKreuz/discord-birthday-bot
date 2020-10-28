@@ -129,3 +129,17 @@ def set_channel(guild_id, channel_id):
         return True
     else:
         return False
+
+
+def delete_guild(guild_id):
+    """Deletes an guild in the greeting_channel table"""
+    connection = connect()
+    if connection is not None:
+        query = f'DELETE FROM {TABLE_NAME_SETTINGS} ' \
+                f'WHERE guild_id = {guild_id};'
+        connection.cursor().execute(query)
+        connection.commit()
+        disconnect(connection)
+        return True
+    else:
+        return False
