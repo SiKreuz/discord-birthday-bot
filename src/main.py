@@ -76,6 +76,13 @@ async def on_command_error(ctx, error):
     bot.loop.create_task(send_message(ret_msg, ctx.channel))
 
 
+@bot.event
+async def on_guild_remove(guild):
+    """Deletes guild if bot leaves it"""
+    database_util.delete_guild(guild_id=guild.id)
+    print(f'The bot left {guild.name}')
+
+
 async def send_message(message, channel):
     """Sends a message into the given channel."""
     await channel.send(message)
