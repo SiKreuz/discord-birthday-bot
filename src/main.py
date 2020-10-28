@@ -10,6 +10,9 @@ from output_util import e_print
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
+PREFIX = '!bdg '
+bot = commands.Bot(command_prefix=PREFIX)
+
 
 class Person:
     """Represents a member on the discord with its id and birthday."""
@@ -21,59 +24,50 @@ class Person:
         self.guild_id = guild_id
 
 
-PREFIX = '!bdg '
-bot = commands.Bot(command_prefix=PREFIX)
+class Everyone(commands.Cog):
+    @commands.command(name='set')
+    async def save_date(self, ctx, date):
+        """Saves the birthday of the user."""
+        # Date handling #
+        parsed_date = date_util.parse_to_date(date)
+        if parsed_date is None:
+            raise commands.BadArgument(date)
+
+        # Insert into database #
+        person = Person(ctx.author.id, parsed_date, ctx.guild.id)
+        database_util.insert(person)
+
+        # Send return message #
+        await send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
+                           + date_util.parse_to_string(person.birthday)
+                           + '.', ctx.channel)
+
+
+class Admin(commands.Cog):
+    @commands.command(name='list')
+    @commands.has_permissions(administrator=True)
+    async def list_birthdays(self, ctx):
+        """Prints a list of all saved birthdays."""
+        ret_msg = 'These are all birthdays I know:\n'
+        for p in database_util.list_all(ctx.guild.id):
+            ret_msg += f'{date_util.parse_to_string(p[1])} - <@{p[0]}>\n'
+        await send_message(ret_msg, ctx.channel)
+
+    @commands.command(name='set-channel')
+    @commands.has_permissions(administrator=True)
+    async def set_channel(self, ctx):
+        """Sets current channel for upcoming congratulations."""
+        database_util.set_channel(ctx.guild.id, ctx.channel.id)
+        ret_msg = 'Alright. All birthday greetings will be posted in this channel now.'
+        await send_message(ret_msg, ctx.channel)
 
 
 @bot.event
-async def on_ready():
-    """Confirms the connection to discord."""
-    print('%s is connected to discord.' % bot.user)
-
-
-@bot.command(name='set')
-async def save_date(ctx, date):
-    """Saves the birthday of the user."""
-    # Date handling #
-    parsed_date = date_util.parse_to_date(date)
-    if parsed_date is None:
-        raise commands.BadArgument(date)
-
-    # Insert into database #
-    person = Person(ctx.author.id, parsed_date, ctx.guild.id)
-    database_util.insert(person)
-
-    # Send return message #
-    bot.loop.create_task(send_message(f'Save the date! <@{person.person_id}>\'s birthday is at the '
-                                      + date_util.parse_to_string(person.birthday)
-                                      + '.', ctx.channel))
-
-
-@bot.command(name='list')
-@commands.has_permissions(administrator=True)
-async def list_birthdays(ctx):
-    """Prints a list of all saved birthdays."""
-    ret_msg = 'These are all birthdays I know:\n'
-    for p in database_util.list_all(ctx.guild.id):
-        ret_msg += f'{date_util.parse_to_string(p[1])} - <@{p[0]}>\n'
-    bot.loop.create_task(send_message(ret_msg, ctx.channel))
-
-
-@bot.command(name='set-channel')
-@commands.has_permissions(administrator=True)
-async def set_channel(ctx):
-    """Sets current channel for upcoming congratulations."""
-    database_util.set_channel(ctx.guild.id, ctx.channel.id)
-    ret_msg = 'Alright. All birthday greetings will be posted in this channel now.'
-    bot.loop.create_task(send_message(ret_msg, ctx.channel))
-
-
-@save_date.error
-@list_birthdays.error
-@set_channel.error
-async def set_channel_error(ctx, error):
+async def on_command_error(ctx, error):
     """Handles all errors of incoming commands."""
-    if isinstance(error, commands.MissingPermissions):
+    if isinstance(error, commands.CommandNotFound):
+        ret_msg = 'Sorry, but this command does not exist. With `!bdg help` you can list all available commands.'
+    elif isinstance(error, commands.MissingPermissions):
         ret_msg = 'Sorry, but you don\'t have the necessary permissions to use this command.'
     elif isinstance(error, commands.BadArgument):
         ret_msg = 'Sry, but \'%s\' isn\'t a date.' % error.args[0]
@@ -112,11 +106,13 @@ def start_scheduler():
 def start(token, name, user, password, host, port):
     """Sets up the database, logs into discord and starts the cron job."""
 
-    start_scheduler()
+    bot.add_cog(Everyone())
+    bot.add_cog(Admin())
 
     if database_util.startup(name, user, password, host, port):
         try:
             bot.run(token)
+            start_scheduler()
         except discord.errors.LoginFailure:
             e_print('Please check your login credentials at', config.CONFIG_FILE_PATH)
             exit(1)
