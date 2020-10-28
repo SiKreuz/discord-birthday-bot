@@ -1,3 +1,5 @@
+from asyncio import TimeoutError
+
 import click
 import discord
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -73,8 +75,19 @@ class Admin(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def delete_all(self, ctx):
         """Deletes all saved birthdays."""
-        if database_util.delete_all(ctx.guild.id):
-            await send_message('I have forgotten all your birthdays. Tell me some!', ctx.channel)
+        # Sends confirmation message and reacts with thumb up #
+        msg = await send_message('Do you really want to delete all birthdays? This cannot be undone!', ctx.channel)
+        await msg.add_reaction('👍')
+
+        # Wait for reaction and delete all birthdays afterwards. #
+        try:
+            if await bot.wait_for('reaction_add',
+                                  timeout=30.0,
+                                  check=lambda reaction, user: user == ctx.author and reaction.emoji == '👍'):
+                database_util.delete_all(ctx.guild.id)
+                await send_message('I have forgotten all your birthdays. Tell me some!', ctx.channel)
+        except TimeoutError:
+            await send_message('You didn\'t react in-time. I\'ll just forget about that.', ctx.channel)
 
 
 @bot.event
@@ -93,7 +106,7 @@ async def on_command_error(ctx, error):
 
 async def send_message(message, channel):
     """Sends a message into the given channel."""
-    await channel.send(message)
+    return await channel.send(message)
 
 
 def send_birthday_message():
