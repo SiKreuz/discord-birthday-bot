@@ -111,6 +111,12 @@ async def on_guild_remove(guild):
     print(f'The bot left {guild.name}')
 
 
+@bot.event
+async def on_member_remove(person):
+    """Deletes person if it leaves guild"""
+    database_util.delete(person)
+    
+
 async def send_message(message, channel):
     """Sends a message into the given channel."""
     return await channel.send(message)
