@@ -1,0 +1,74 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: discord-birthday-bot\n"
+"POT-Creation-Date: 2020-11-01 15:45+0100\n"
+"PO-Revision-Date: 2020-11-01 16:53\n"
+"Last-Translator: \n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: Poedit 2.4.1\n"
+"X-Poedit-Basepath: ../src\n"
+"X-Poedit-SearchPath-0: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: discord-birthday-bot\n"
+"X-Crowdin-Project-ID: 427140\n"
+"X-Crowdin-Language: de\n"
+"X-Crowdin-File: discord_birthday_bot.pot\n"
+"X-Crowdin-File-ID: 2\n"
+"Language: de_DE\n"
+
+#: main.py:48
+#, python-format
+msgid "Save the date! <@%s>'s birthday is at the %s."
+msgstr "Hört, hört! <@%s> hat am %s Geburtstag."
+
+#: main.py:57
+#, python-format
+msgid "<@%s>, I have forgotten your birthday. Do you even have one?"
+msgstr "<@%s>, ich habe deinen Geburtstag vergessen. Hast du überhaupt Geburtstag?"
+
+#: main.py:67
+msgid "These are all birthdays I know:"
+msgstr "Eine Liste aller Geburtstage, die ich kenne:"
+
+#: main.py:77
+msgid "Alright. All birthday greetings will be posted in this channel now."
+msgstr "Alles klar. Geburtstagsglückwünsche werden künftig hier gepostet."
+
+#: main.py:85
+msgid "Do you really want to delete all birthdays? This cannot be undone!"
+msgstr "Möchtest du wirklich alle Geburtstage löschen? Das kann nicht rückgängig gemacht werden!"
+
+#: main.py:94
+msgid "I have forgotten all your birthdays. Tell me some!"
+msgstr "Ich habe alle eure Geburtstage vergessen. Nennt mir ein paar!"
+
+#: main.py:96
+msgid "You didn't react in-time. I'll just forget about that."
+msgstr "Du hast nicht rechtzeitig reagiert. Ich werde deine Anfrage einfach vergessen."
+
+#: main.py:103
+msgid "Sorry, but this command does not exist. With `!bdg help` you can list all available commands."
+msgstr "Es tut mir leid, aber dieser Befehl existiert nicht. Mit `!bdg help` kannst du alle verfügbaren Befehle anzeigen lassen."
+
+#: main.py:105
+msgid "Sorry, but you don't have the necessary permissions to use this command."
+msgstr "Es tut mir leid, aber du hast nicht die erforderlichen Berechtigungen für diesen Befehl."
+
+#: main.py:107
+#, python-format
+msgid "Sry, but '%s' isn't a date."
+msgstr "Es tut mir leid, aber '%s' ist kein Datum."
+
+#: main.py:109
+msgid "Sorry, but something went wrong. Please advise the administrator."
+msgstr "Es tut mir leid, irgendwas ging schief. Bitte informiere einen Administrator."
+
+#: main.py:136
+#, python-format
+msgid "<@%s> is now %s years old!"
+msgstr "Lasst uns feiern! %s ist jetzt %s Jahre alt!"
+

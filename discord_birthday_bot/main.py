@@ -1,4 +1,5 @@
 import gettext
+import os
 from asyncio import TimeoutError
 
 import click
@@ -6,14 +7,15 @@ import discord
 from apscheduler.schedulers.background import BackgroundScheduler
 from discord.ext import commands
 
-from discord_birthday_bot import config_util as config, database_util, date_util
+from discord_birthday_bot import config_util as config
+from discord_birthday_bot import database_util
+from discord_birthday_bot import date_util
 from discord_birthday_bot.output_util import e_print
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
-LOCALE_DIR = './locales'
-translate = gettext.translation('main', localedir=LOCALE_DIR, fallback=True)
-_ = translate.gettext
+LOCALE_DIR = os.path.join(os.path.dirname(__file__), 'locale')
+_ = gettext.gettext
 
 PREFIX = '!bdg '
 bot = commands.Bot(command_prefix=PREFIX)
@@ -141,6 +143,13 @@ def start_scheduler():
     scheduler.start()
 
 
+def set_language(lang):
+    global _
+    trans = gettext.translation('discord_birthday_bot', localedir=LOCALE_DIR, languages=[lang], fallback=True)
+    trans.install()
+    _ = trans.gettext
+
+
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--token', '-t', default=config.get_token(), help='Token of the bot account')
 @click.option('--name', '-n', default=config.get_db_name(), help='Database name')
@@ -148,8 +157,11 @@ def start_scheduler():
 @click.option('--password', '-s', default=config.get_db_password(), help='Password to enter database')
 @click.option('--host', '-a', default=config.get_db_host(), help='URL of the database')
 @click.option('--port', '-p', default=config.get_db_port(), help='Port of the database')
-def start(token, name, user, password, host, port):
+@click.option('--language', '-l', default=config.get_language(), help='Language in which the bot shall talk')
+def start(token, name, user, password, host, port, language):
     """Sets up the database, logs into discord and starts the cron job."""
+
+    set_language(language)
 
     bot.add_cog(Everyone())
     bot.add_cog(Admin())
