@@ -43,7 +43,7 @@ if not config.has_section(DB_SECTION):
     config.set(DB_SECTION, DB_PORT, '5432')
 if not config.has_section(LOC_SECTION):
     config.add_section(LOC_SECTION)
-    config.set(LOC_SECTION, LOC_LANGUAGE, 'en')
+    config.set(LOC_SECTION, LOC_LANGUAGE, 'en_US')
 
 with open(CONFIG_FILE_PATH, 'w+') as config_file:
     config.write(config_file)
@@ -74,4 +74,7 @@ def get_db_port():
 
 
 def get_language():
-    return config.get(LOC_SECTION, LOC_LANGUAGE)
+    l = config.get(LOC_SECTION, LOC_LANGUAGE)
+    if l == '':
+        l = 'en_US'
+    return l
