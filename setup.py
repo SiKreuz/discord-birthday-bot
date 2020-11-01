@@ -5,8 +5,7 @@ APP_NAME = 'discord-birthday-bot'
 setup(
     name=APP_NAME,
     version='0.1.0.dev0',
-    package_dir={'': 'src'},
-    py_modules=['main', 'config_util', 'database_util', 'date_util', 'output_util'],
+    packages=['discord_birthday_bot'],
     url='https://github.com/SiKreuz/discord-birthday-bot',
     license='MIT',
     author='Simon Kreuzer',
@@ -17,7 +16,7 @@ setup(
     python_requires='>=3.5',
     entry_points={
         'console_scripts': [
-            'dc-birthday-bot=main:start'
+            'dc-birthday-bot=discord_birthday_bot.discord_birthday_bot:start'
         ]
     },
     install_requires=[

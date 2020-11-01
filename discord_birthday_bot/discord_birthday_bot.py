@@ -6,10 +6,8 @@ import discord
 from apscheduler.schedulers.background import BackgroundScheduler
 from discord.ext import commands
 
-import config_util as config
-import database_util
-import date_util
-from output_util import e_print
+from discord_birthday_bot import config_util as config, database_util, date_util
+from discord_birthday_bot.output_util import e_print
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
