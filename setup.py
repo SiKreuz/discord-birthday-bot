@@ -4,14 +4,13 @@ APP_NAME = 'discord-birthday-bot'
 
 setup(
     name=APP_NAME,
-    version='0.1.0.dev0',
+    version='0.1.0',
     packages=['discord_birthday_bot'],
     url='https://github.com/SiKreuz/discord-birthday-bot',
     license='MIT',
     author='Simon Kreuzer',
     author_email='mail@monsi.org',
-    description='A discord bot that saves your server\'s member\'s birthdays and does a friendly reminder on the '
-                'birthday itself.',
+    description='A small Discord bot that congratulates to your server members on their birthday.',
 
     python_requires='>=3.5',
     entry_points={
