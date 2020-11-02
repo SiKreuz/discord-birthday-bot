@@ -2,4 +2,5 @@
 .vscode/
 /venv
 .env
+locale/**/*.mo
 __pycache__/

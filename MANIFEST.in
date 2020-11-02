@@ -1,0 +1,4 @@
+include LICENSE
+recursive-include discord_birthday_bot *
+exclude .*
+exclude *~

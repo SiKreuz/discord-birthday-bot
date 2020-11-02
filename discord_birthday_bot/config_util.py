@@ -3,7 +3,7 @@ from pathlib import Path
 
 import appdirs
 
-APP_NAME = 'discordBirthdayBot'
+APP_NAME = 'discord_birthday_bot'
 
 CONFIG_DIR = appdirs.user_config_dir(APP_NAME)
 CONFIG_FILE_NAME = 'config'
@@ -18,6 +18,9 @@ DB_USER = 'username'
 DB_PASSWORD = 'password'
 DB_HOST = 'host'
 DB_PORT = 'port'
+
+LOC_SECTION = 'Locale'
+LOC_LANGUAGE = 'language'
 
 # create config directory if not already existing
 if not Path(CONFIG_FILE_PATH).exists():
@@ -38,6 +41,9 @@ if not config.has_section(DB_SECTION):
     config.set(DB_SECTION, DB_PASSWORD, '')
     config.set(DB_SECTION, DB_HOST, '127.0.0.1')
     config.set(DB_SECTION, DB_PORT, '5432')
+if not config.has_section(LOC_SECTION):
+    config.add_section(LOC_SECTION)
+    config.set(LOC_SECTION, LOC_LANGUAGE, 'en_US')
 
 with open(CONFIG_FILE_PATH, 'w+') as config_file:
     config.write(config_file)
@@ -65,3 +71,10 @@ def get_db_host():
 
 def get_db_port():
     return config.get(DB_SECTION, DB_PORT)
+
+
+def get_language():
+    l = config.get(LOC_SECTION, LOC_LANGUAGE)
+    if l == '':
+        l = 'en_US'
+    return l
