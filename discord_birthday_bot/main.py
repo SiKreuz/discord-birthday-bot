@@ -159,7 +159,7 @@ def set_language(lang):
 @click.option('--port', '-p', default=config.get_db_port(), help='Port of the database')
 @click.option('--language', '-l', default=config.get_language(), help='Language in which the bot shall talk')
 def start(token, name, user, password, host, port, language):
-    """Sets up the database, logs into discord and starts the cron job."""
+    """Log into discord and listens for any command on all channels on all servers the bot was added to."""
 
     set_language(language)
 
