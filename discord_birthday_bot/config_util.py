@@ -1,4 +1,5 @@
 import configparser
+import os
 from pathlib import Path
 
 import appdirs
@@ -7,7 +8,7 @@ APP_NAME = 'discord_birthday_bot'
 
 CONFIG_DIR = appdirs.user_config_dir(APP_NAME)
 CONFIG_FILE_NAME = 'config'
-CONFIG_FILE_PATH = CONFIG_DIR + '/' + CONFIG_FILE_NAME
+CONFIG_FILE_PATH = os.path.join(CONFIG_DIR, CONFIG_FILE_NAME)
 
 BOT_SECTION = 'Bot'
 TOKEN = 'token'
