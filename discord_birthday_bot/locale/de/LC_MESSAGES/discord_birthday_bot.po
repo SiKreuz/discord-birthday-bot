@@ -70,5 +70,5 @@ msgstr "Es tut mir leid, irgendwas ging schief. Bitte informiere einen Administr
 #: main.py:136
 #, python-format
 msgid "<@%s> is now %s years old!"
-msgstr "Lasst uns feiern! %s ist jetzt %s Jahre alt!"
+msgstr "Lasst uns feiern! <@%s> ist jetzt %s Jahre alt!"
 
