@@ -71,5 +71,5 @@ msgstr "Eine Liste aller Geburtstage, die ich kenne:"
 #: discord_birthday_bot/main.py:176
 #, python-format
 msgid "<@%s> is now %s years old!"
-msgstr "Lasst uns feiern! %s ist jetzt %s Jahre alt!"
+msgstr "Lasst uns feiern! <@%s> ist jetzt %s Jahre alt!"
 

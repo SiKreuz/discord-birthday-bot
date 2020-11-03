@@ -224,8 +224,8 @@ def start(token, name, user, password, host, port, language):
 
     if database_util.startup(name, user, password, host, port):
         try:
-            bot.run(token)
             start_scheduler()
+            bot.run(token)
         except discord.errors.LoginFailure:
             e_print('Please check your login credentials at', config.CONFIG_FILE_PATH)
             exit(1)
