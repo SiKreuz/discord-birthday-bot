@@ -48,6 +48,7 @@ class Everyone(commands.Cog):
         await send_message(_('Save the date! <@%s>\'s birthday is at the %s.')
                            % (person.person_id, date_util.parse_to_string(person.birthday)),
                            ctx.channel)
+        await update_list_message(ctx)  # Update birthday list
 
     @commands.command(name='delete')
     async def delete_date(self, ctx):
@@ -57,17 +58,28 @@ class Everyone(commands.Cog):
             await send_message(_('<@%s>, I have forgotten your birthday. Do you even have one?')
                                % person.person_id,
                                ctx.channel)
+            await update_list_message(ctx)  # Update birthday list
 
 
 class Admin(commands.Cog):
     @commands.command(name='list')
     @commands.has_permissions(administrator=True)
     async def list_birthdays(self, ctx):
-        """Prints a list of all saved birthdays."""
-        ret_msg = _('These are all birthdays I know:') + '\n'
-        for p in database_util.list_all(ctx.guild.id):
-            ret_msg += '%s - <@%s>\n' % (date_util.parse_to_string(p[1]), p[0])
-        await send_message(ret_msg, ctx.channel)
+        """Prints a list of all saved birthdays.
+
+        The list will be updated on each change. So a new birthday or deletion will update this message.
+        """
+        # Write new message #
+        ret_msg = get_birthday_list(ctx.guild)
+        msg = await send_message(ret_msg, ctx.channel)
+
+        # Delete old message #
+        old_msg = await get_list_msg(ctx.guild)
+        if old_msg is not None:
+            await old_msg.delete()
+
+        # Update database
+        database_util.set_list_msg(ctx.guild.id, ctx.channel.id, msg.id)
 
     @commands.command(name='set-channel')
     @commands.has_permissions(administrator=True)
@@ -92,6 +104,7 @@ class Admin(commands.Cog):
                                   check=lambda reaction, user: user == ctx.author and reaction.emoji == '👍'):
                 database_util.delete_all(ctx.guild.id)
                 await send_message(_('I have forgotten all your birthdays. Tell me some!'), ctx.channel)
+                await update_list_message(ctx)  # Update birthday list
         except TimeoutError:
             await send_message(_('You didn\'t react in-time. I\'ll just forget about that.'), ctx.channel)
 
@@ -123,9 +136,52 @@ async def on_member_remove(person):
     database_util.delete(person)
 
 
+async def get_list_msg(guild):
+    """Returns the list message."""
+    res = database_util.get_list_msg_id(guild.id)
+
+    # Skip if nothing found #
+    if not res:
+        return None
+
+    ch_id = res[0][0]
+    msg_id = res[0][1]
+
+    # Skip if no channel or message is defined #
+    if ch_id is None or msg_id is None:
+        return None
+
+    try:
+        ch = bot.get_channel(ch_id)
+        msg = await ch.fetch_message(msg_id)
+        return msg
+    except (discord.NotFound, AttributeError):
+        # Remove list message data from database #
+        database_util.remove_list_msg(guild.id)
+        return None
+
+
+async def update_list_message(ctx):
+    """Updates the list message with the current data from the database."""
+    msg = await get_list_msg(ctx.guild)
+    if msg is not None:
+        await msg.edit(content=get_birthday_list(ctx.guild))
+
+
 async def send_message(message, channel):
     """Sends a message into the given channel."""
     return await channel.send(message)
+
+
+def get_birthday_list(guild):
+    """Returns a list of all birthdays as string for posting at the discord server."""
+    birthday_list = database_util.list_all(guild.id)
+    if not birthday_list:
+        msg = _('I don\'t know any birthdays. Tell me some!')
+    else:
+        msg = _('These are all birthdays I know:') + '\n' + '\n'.join(
+            map(lambda m: '%s - <@%s>' % (date_util.parse_to_string(m[1]), m[0]), birthday_list))
+    return msg
 
 
 def send_birthday_message():
