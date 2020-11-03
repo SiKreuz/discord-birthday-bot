@@ -4,7 +4,7 @@ APP_NAME = 'discord-birthday-bot'
 
 setup(
     name=APP_NAME,
-    version='0.1.0',
+    version='0.1.1',
     packages=['discord_birthday_bot'],
     url='https://github.com/SiKreuz/discord-birthday-bot',
     license='MIT',
