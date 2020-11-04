@@ -45,8 +45,9 @@ class Everyone(commands.Cog):
         database_util.insert(person)
 
         # Send return message #
+        date = date_util.parse_to_string(person.birthday)
         await send_message(_('Save the date! <@%s>\'s birthday is at the %s.')
-                           % (person.person_id, date_util.parse_to_string(person.birthday)),
+                           % (person.person_id, date),
                            ctx.channel)
         await update_list_message(ctx)  # Update birthday list
 
@@ -119,6 +120,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.BadArgument):
         ret_msg = _('Sry, but \'%s\' isn\'t a date.' % error.args[0])
     else:
+        print(error)
         ret_msg = _('Sorry, but something went wrong. Please advise the administrator.')
     bot.loop.create_task(send_message(ret_msg, ctx.channel))
 
@@ -189,7 +191,14 @@ def send_birthday_message():
     birthday_children = database_util.get_birthday_children()
     for child in birthday_children:
         channel = bot.get_channel(child[2])
-        bot.loop.create_task(send_message(_('<@%s> is now %s years old!') % (child[0], int(child[1])), channel))
+
+        # Create message depending if the birthday contains a year #
+        if date_util.has_year(child[1]):
+            msg = _('Let\'s party! <@%s> is now %s years old!') % (child[0], int(child[1]))
+        else:
+            msg = _('Let\'s party! It\'s <@%s> birthday today!') % (child[0])
+
+        bot.loop.create_task(send_message(msg, channel))
 
 
 def start_scheduler():
