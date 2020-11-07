@@ -1,5 +1,7 @@
 import psycopg2
 
+from discord_birthday_bot import date_util
+
 DATABASE = None
 USERNAME = None
 PASSWORD = None
@@ -86,7 +88,7 @@ def insert(person):
         disconnect(connection)
         print(f'Guild {person.guild_id}: '
               f'Added member {person.person_id} with birthday '
-              + person.birthday.strftime('%x') + '.')
+              + date_util.parse_to_string(person.birthday) + '.')
         return True
     else:
         return False

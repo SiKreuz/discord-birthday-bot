@@ -30,6 +30,7 @@ setup(
         'click~=7.1.2',
         'psycopg2~=2.8.6',
         'appdirs~=1.4.4',
-        'APScheduler~=3.6.3'
+        'APScheduler~=3.6.3',
+        'Babel~=2.8.0'
     ]
 )
