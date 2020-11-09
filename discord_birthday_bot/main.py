@@ -192,11 +192,17 @@ def send_birthday_message():
     for child in birthday_children:
         channel = bot.get_channel(child[2])
 
+        # Ping everyone if permission is granted #
+        if channel.guild.me.permissions_in(channel).mention_everyone:
+            msg = '@everyone '
+        else:
+            msg = ''
+
         # Create message depending if the birthday contains a year #
         if child[1] < 2000:
-            msg = _('Let\'s party! <@%s> is now %s years old!') % (child[0], int(child[1]))
+            msg += _('Let\'s party! <@%s> is now %s years old!') % (child[0], int(child[1]))
         else:
-            msg = _('Let\'s party! It\'s <@%s> birthday today!') % (child[0])
+            msg += _('Let\'s party! It\'s <@%s> birthday today!') % (child[0])
 
         bot.loop.create_task(send_message(msg, channel))
 
