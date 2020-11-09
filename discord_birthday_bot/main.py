@@ -193,7 +193,7 @@ def send_birthday_message():
         channel = bot.get_channel(child[2])
 
         # Create message depending if the birthday contains a year #
-        if date_util.has_year(child[1]):
+        if child[1] < 2000:
             msg = _('Let\'s party! <@%s> is now %s years old!') % (child[0], int(child[1]))
         else:
             msg = _('Let\'s party! It\'s <@%s> birthday today!') % (child[0])
