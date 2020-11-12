@@ -1,0 +1,67 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: discord-birthday-bot\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: discord-birthday-bot\n"
+"X-Crowdin-Project-ID: 427140\n"
+"X-Crowdin-Language: de\n"
+"X-Crowdin-File: main.pot\n"
+"X-Crowdin-File-ID: 2\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language-Team: German\n"
+"Language: de_DE\n"
+"PO-Revision-Date: 2020-11-12 12:00\n"
+
+#: discord_birthday_bot/main.py:59
+#, python-format
+msgid "<@%s>, I have forgotten your birthday. Do you even have one?"
+msgstr "<@%s>, ich habe deinen Geburtstag vergessen. Hast du überhaupt Geburtstag?"
+
+#: discord_birthday_bot/main.py:90
+msgid "Alright. All birthday greetings will be posted in this channel now."
+msgstr "Alles klar. Geburtstagsglückwünsche werden künftig hier gepostet."
+
+#: discord_birthday_bot/main.py:98
+msgid "Do you really want to delete all birthdays? This cannot be undone!"
+msgstr "Möchtest du wirklich alle Geburtstage löschen? Das kann nicht rückgängig gemacht werden!"
+
+#: discord_birthday_bot/main.py:182
+msgid "I don't know any birthdays. Tell me some!"
+msgstr "Ich weiß keinen Geburtstag. Nennt mir ein paar!"
+
+#: discord_birthday_bot/main.py:107
+msgid "I have forgotten all your birthdays. Tell me some!"
+msgstr "Ich habe alle eure Geburtstage vergessen. Nennt mir ein paar!"
+
+#: discord_birthday_bot/main.py:203
+#, python-format
+msgid "Let's party! <@%s> is now %s years old!"
+msgstr "Lasst uns feiern! <@%s> ist jetzt %s Jahre alt!"
+
+#: discord_birthday_bot/main.py:205
+#, python-format
+msgid "Let's party! It's <@%s> birthday today!"
+msgstr "Lasst uns feiern! <@%s> hat heute Geburtstag!"
+
+#: discord_birthday_bot/main.py:49
+#, python-format
+msgid "Save the date! <@%s>'s birthday is at the %s."
+msgstr "Hört, hört! <@%s> hat am %s Geburtstag."
+
+#: discord_birthday_bot/main.py:124
+msgid "Sorry, but something went wrong. Please advise the administrator."
+msgstr "Es tut mir leid, irgendwas ging schief. Bitte informiere einen Administrator."
+
+#: discord_birthday_bot/main.py:121
+#, python-format
+msgid "Sry, but '%s' isn't a date."
+msgstr "Es tut mir leid, aber '%s' ist kein Datum."
+
+#: discord_birthday_bot/main.py:184
+msgid "These are all birthdays I know:"
+msgstr "Eine Liste aller Geburtstage, die ich kenne:"
+
+#: discord_birthday_bot/main.py:110
+msgid "You didn't react in-time. I'll just forget about that."
+msgstr "Du hast nicht rechtzeitig reagiert. Ich werde deine Anfrage einfach vergessen."
+

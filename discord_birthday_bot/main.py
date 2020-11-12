@@ -216,7 +216,7 @@ def start_scheduler():
 
 def set_language(lang):
     global _
-    trans = gettext.translation('discord_birthday_bot', localedir=LOCALE_DIR, languages=[lang], fallback=True)
+    trans = gettext.translation('main', localedir=LOCALE_DIR, languages=[lang], fallback=True)
     trans.install()
     _ = trans.gettext
 

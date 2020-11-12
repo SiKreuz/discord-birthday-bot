@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-03 16:47+0100\n"
+"POT-Creation-Date: 2020-11-12 13:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,61 +17,66 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: discord_birthday_bot/main.py:48
-#, python-format
-msgid "Save the date! <@%s>'s birthday is at the %s."
-msgstr ""
-
-#: discord_birthday_bot/main.py:58
+#: discord_birthday_bot/main.py:59
 #, python-format
 msgid "<@%s>, I have forgotten your birthday. Do you even have one?"
 msgstr ""
 
-#: discord_birthday_bot/main.py:81
+#: discord_birthday_bot/main.py:90
 msgid "Alright. All birthday greetings will be posted in this channel now."
 msgstr ""
 
-#: discord_birthday_bot/main.py:89
+#: discord_birthday_bot/main.py:98
 msgid "Do you really want to delete all birthdays? This cannot be undone!"
 msgstr ""
 
-#: discord_birthday_bot/main.py:98
+#: discord_birthday_bot/main.py:182
+msgid "I don't know any birthdays. Tell me some!"
+msgstr ""
+
+#: discord_birthday_bot/main.py:107
 msgid "I have forgotten all your birthdays. Tell me some!"
 msgstr ""
 
-#: discord_birthday_bot/main.py:101
-msgid "You didn't react in-time. I'll just forget about that."
+#: discord_birthday_bot/main.py:203
+#, python-format
+msgid "Let's party! <@%s> is now %s years old!"
 msgstr ""
 
-#: discord_birthday_bot/main.py:108
+#: discord_birthday_bot/main.py:205
+#, python-format
+msgid "Let's party! It's <@%s> birthday today!"
+msgstr ""
+
+#: discord_birthday_bot/main.py:49
+#, python-format
+msgid "Save the date! <@%s>'s birthday is at the %s."
+msgstr ""
+
+#: discord_birthday_bot/main.py:124
+msgid "Sorry, but something went wrong. Please advise the administrator."
+msgstr ""
+
+#: discord_birthday_bot/main.py:117
 msgid ""
 "Sorry, but this command does not exist. With `!bdg help` you can list all "
 "available commands."
 msgstr ""
 
-#: discord_birthday_bot/main.py:110
+#: discord_birthday_bot/main.py:119
 msgid ""
 "Sorry, but you don't have the necessary permissions to use this command."
 msgstr ""
 
-#: discord_birthday_bot/main.py:112
+#: discord_birthday_bot/main.py:121
 #, python-format
 msgid "Sry, but '%s' isn't a date."
 msgstr ""
 
-#: discord_birthday_bot/main.py:114
-msgid "Sorry, but something went wrong. Please advise the administrator."
-msgstr ""
-
-#: discord_birthday_bot/main.py:164
-msgid "I don't know any birthdays. Tell me some!"
-msgstr ""
-
-#: discord_birthday_bot/main.py:166
+#: discord_birthday_bot/main.py:184
 msgid "These are all birthdays I know:"
 msgstr ""
 
-#: discord_birthday_bot/main.py:176
-#, python-format
-msgid "<@%s> is now %s years old!"
+#: discord_birthday_bot/main.py:110
+msgid "You didn't react in-time. I'll just forget about that."
 msgstr ""
