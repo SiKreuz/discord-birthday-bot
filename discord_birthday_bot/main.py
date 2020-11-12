@@ -17,8 +17,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 LOCALE_DIR = os.path.join(os.path.dirname(__file__), 'locale')
 _ = gettext.gettext
 
-PREFIX = '!bdg '
-bot = commands.Bot(command_prefix=PREFIX)
+bot = commands.Bot(config.BOT_PREFIX[1] + ' ')  # init bot with standard prefix
 
 
 class Person:
@@ -223,16 +222,25 @@ def set_language(lang):
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--token', '-t', default=config.get_token(), help='Token of the bot account')
+@click.option('--prefix', '-b', default=config.get_prefix(), help='Prefix for bot commands')
+@click.option('--space-after-prefix', '-a', default=config.is_space_after_prefix(),
+              help='Defines whether space after prefix is inserted')
 @click.option('--name', '-n', default=config.get_db_name(), help='Database name')
 @click.option('--user', '-u', default=config.get_db_user(), help='Username to enter database')
 @click.option('--password', '-s', default=config.get_db_password(), help='Password to enter database')
 @click.option('--host', '-a', default=config.get_db_host(), help='URL of the database')
 @click.option('--port', '-p', default=config.get_db_port(), help='Port of the database')
 @click.option('--language', '-l', default=config.get_language(), help='Language in which the bot shall talk')
-def start(token, name, user, password, host, port, language):
+def start(token, prefix, space_after_prefix, name, user, password, host, port, language):
     """Log into discord and listens for any command on all channels on all servers the bot was added to."""
 
     set_language(language)
+
+    global bot
+    if space_after_prefix:
+        prefix += ' '
+
+    bot.command_prefix = prefix  # Update bot prefix from config
 
     bot.add_cog(Everyone())
     bot.add_cog(Admin())
