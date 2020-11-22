@@ -1,6 +1,7 @@
 import gettext
 import os
 from asyncio import TimeoutError
+import datetime
 
 import click
 import discord
@@ -36,11 +37,13 @@ class Everyone(commands.Cog):
         """Saves the birthday of the user."""
         # Date handling #
         parsed_date = date_util.parse_to_date(date)
+        person = Person(ctx.author.id, parsed_date, ctx.guild.id)
         if parsed_date is None:
             raise commands.BadArgument(date)
+        elif date_util.has_birthday(person):
+            send_birthday_message(ctx.channel, person.person_id, date_util.get_age(person))
 
         # Insert into database #
-        person = Person(ctx.author.id, parsed_date, ctx.guild.id)
         database_util.insert(person)
 
         # Send return message #
@@ -185,31 +188,35 @@ def get_birthday_list(guild):
     return msg
 
 
-def send_birthday_message():
+def on_birthday():
     """Checks for the birthday children and sends a message."""
     birthday_children = database_util.get_birthday_children()
     for child in birthday_children:
         channel = bot.get_channel(child[2])
+        send_birthday_message(channel, child[0], child[1])
 
-        # Ping everyone if permission is granted #
-        if channel.guild.me.permissions_in(channel).mention_everyone:
-            msg = '@everyone '
-        else:
-            msg = ''
 
-        # Create message depending if the birthday contains a year #
-        if child[1] < 2000:
-            msg += _('Let\'s party! <@%s> is now %s years old!') % (child[0], int(child[1]))
-        else:
-            msg += _('Let\'s party! It\'s <@%s> birthday today!') % (child[0])
+def send_birthday_message(channel, person_id, age):
+    """Sends birthday message"""
+    # Ping everyone if permission is granted #
+    if channel.guild.me.permissions_in(channel).mention_everyone:
+        msg = '@everyone '
+    else:
+        msg = ''
 
-        bot.loop.create_task(send_message(msg, channel))
+    # Create message depending if the birthday contains a year #
+    if age < 2000:
+        msg += _('Let\'s party! <@%s> is now %s years old!') % (person_id, int(age))
+    else:
+        msg += _('Let\'s party! It\'s <@%s> birthday today!') % person_id
+
+    bot.loop.create_task(send_message(msg, channel))
 
 
 def start_scheduler():
     """Configures and starts the scheduler."""
     scheduler = BackgroundScheduler(daemon=True)
-    scheduler.add_job(send_birthday_message, 'cron', day='*')
+    scheduler.add_job(on_birthday, 'cron', day='*')
     scheduler.start()
 
 

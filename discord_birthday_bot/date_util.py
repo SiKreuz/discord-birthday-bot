@@ -51,3 +51,17 @@ def has_year(date):
 def is_current_year(date):
     """Returns True if the date is from the current year, False otherwise."""
     return date.year == datetime.now().year
+
+
+def has_birthday(person):
+    """Returns if user has birthday"""
+    today = datetime.today()
+    birthday = person.birthday
+    return today.day == birthday.day and today.month == birthday.month
+
+
+def get_age(person):
+    """Gets age of person"""
+    today = datetime.today()
+    test = today.year - person.birthday.year - ((today.day, today.month) < (person.birthday.month, person.birthday.day))
+    return test
