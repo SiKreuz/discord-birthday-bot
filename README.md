@@ -1,8 +1,13 @@
 # Discord Birthday Bot
 
 This a small bot for discord servers to collect birthdays of the members and congratulate on the corresponding day.
-Every member has to set its birthday on its own.
-The bot will congratulate at midnight.
+
+## Features
+
+- Each member of the server can set his / her birthday.
+- The bot congratulates on the corresponding day to all the members that have birthday.
+- Print a list with all birthdays (automatically updating).
+- Admin features to reset all birthdays or set the channel where the bot shall congratulate.
 
 ## Installation
 
@@ -37,14 +42,18 @@ Usage: dc-birthday-bot [OPTIONS]
   servers the bot was added to.
 
 Options:
-  -t, --token TEXT     Token of the bot account
-  -n, --name TEXT      Database name
-  -u, --user TEXT      Username to enter database
-  -s, --password TEXT  Password to enter database
-  -a, --host TEXT      URL of the database
-  -p, --port TEXT      Port of the database
-  -l, --language TEXT  Language in which the bot shall talk
-  -h, --help           Show this message and exit.
+  -t, --token TEXT               Token of the bot account
+  -b, --prefix TEXT              Prefix for bot commands
+  -a, --space-after-prefix TEXT  Defines whether space after prefix is
+                                 inserted
+
+  -n, --name TEXT                Database name
+  -u, --user TEXT                Username to enter database
+  -s, --password TEXT            Password to enter database
+  -a, --host TEXT                URL of the database
+  -p, --port TEXT                Port of the database
+  -l, --language TEXT            Language in which the bot shall talk
+  -h, --help                     Show this message and exit.
 ```
 
 You can pass all credentials (for Discord and PostgreSQL) via command line or save them in the configuration file.
@@ -62,7 +71,9 @@ Furthermore, the format in which the birthdays will be read is changed.
 
 [//]: <> (TODO update according to eventually new prefix handling)
 
-The prefix for the bot is `!bdg`, so every of the following commands needs this prefix in front of it (e.g. `!bdg set 01/01/2000`).
+The default prefix for the bot is `!bd` with an space following.
+You can change the prefix by passing an argument on the server start or set it in the config.
+Every of the following commands needs the prefix in front of it (e.g. `!bd set 01/01/2000`).
 ```
 Admin:
   delete-all  Deletes all saved birthdays.
@@ -73,7 +84,4 @@ Everyone:
   set         Saves the birthday of the user.
 No Category:
   help        Shows this message
-
-Type !bdg help command for more info on a command.
-You can also type !bdg help category for more info on a category.
 ```
