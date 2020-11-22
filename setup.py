@@ -24,13 +24,13 @@ setup(
     locale_dir='discord_birthday_bot/locale',
     install_requires=[
         'discord~=1.0.1',
-        'python-dotenv~=0.14.0',
+        'python-dotenv~=0.15.0',
         'setuptools~=50.3.2',
-        'dateparser~=0.7.6',
+        'dateparser~=1.0.0',
         'click~=7.1.2',
         'psycopg2~=2.8.6',
         'appdirs~=1.4.4',
         'APScheduler~=3.6.3',
-        'Babel~=2.8.0'
+        'Babel~=2.9.0'
     ]
 )
