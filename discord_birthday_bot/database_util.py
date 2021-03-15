@@ -161,7 +161,7 @@ def list_all(guild_id):
 
 
 def get_list_msg_id(guild_id):
-    """Saves the list message id."""
+    """Gets the list message id."""
     connection = connect()
     if connection is not None:
         query = f'SELECT {COLUMN_lIST_MSG_CH_ID}, {COLUMN_LIST_MSG_ID} ' \
@@ -172,6 +172,22 @@ def get_list_msg_id(guild_id):
         msg_id = cursor.fetchall()
         disconnect(connection)
         return msg_id
+    else:
+        return None
+
+
+def get_greeting_channel(guild_id):
+    """Returns the channel to greet in for a specific guild."""
+    connection = connect()
+    if connection is not None:
+        query = f'SELECT {COLUMN_CHANNEL_ID} ' \
+                f'FROM {TABLE_NAME_SETTINGS} ' \
+                f'WHERE {COLUMN_GUILD_ID} = %s;'
+        cursor = connection.cursor()
+        cursor.execute(query, (guild_id,))
+        channel_id = cursor.fetchall()[0][0]
+        disconnect(connection)
+        return channel_id
     else:
         return None
 

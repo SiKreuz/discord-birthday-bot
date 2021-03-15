@@ -40,8 +40,6 @@ class Everyone(commands.Cog):
         person = Person(ctx.author.id, parsed_date, ctx.guild.id)
         if parsed_date is None:
             raise commands.BadArgument(date)
-        elif date_util.has_birthday(person):
-            send_birthday_message(ctx.channel, person.person_id, date_util.get_age(person))
 
         # Insert into database #
         database_util.insert(person)
@@ -52,6 +50,13 @@ class Everyone(commands.Cog):
                            % (person.person_id, date),
                            ctx.channel)
         await update_list_message(ctx)  # Update birthday list
+
+        # Send birthday message, if the member's birthday is today #
+        if date_util.has_birthday(person):
+            channel_id = database_util.get_greeting_channel(ctx.guild.id)
+            if channel_id is not None:
+                channel = bot.get_channel(channel_id)
+                send_birthday_message(channel, person.person_id, date_util.get_age(person))
 
     @commands.command(name='delete')
     async def delete_date(self, ctx):
