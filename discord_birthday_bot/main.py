@@ -198,9 +198,9 @@ def on_birthday():
 
 def send_birthday_message(channel, person_id, age):
     """Sends birthday message"""
-    # Ping everyone if permission is granted #
+    # Ping here if permission is granted #
     if channel.guild.me.permissions_in(channel).mention_everyone:
-        msg = '@everyone '
+        msg = '@here '
     else:
         msg = ''
 
